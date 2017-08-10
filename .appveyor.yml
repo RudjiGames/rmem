@@ -15,7 +15,7 @@ configuration:
 
 install:
   - git clone --depth 1 https://github.com/milostosic/build ..\build
-  - ..\build\tools\windows\genie %TOOLSET%
+  - ..\build\tools\windows\genie --file=genie\genie.lua %TOOLSET%
 
 build:
   project: .build/windows/$(TOOLSET)/projects/rmem/rmem.sln
