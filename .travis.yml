@@ -19,7 +19,7 @@ before_script:
     - git clone --depth 1 https://github.com/milostosic/build ../build
 
 script:
-    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make gmake-linux CXX="g++-4.8" CC="gcc-4.8"; fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make ../.build/projects/gmake-linux CXX="g++-4.8" CC="gcc-4.8"; fi
 #    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then make test; fi
 
 branches:
