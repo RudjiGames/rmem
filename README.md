@@ -1,6 +1,10 @@
 rmem (MTuner SDK)
 ====== 
 
+[![Build Status](https://travis-ci.org/milostosic/rmem.svg?branch=master)](https://travis-ci.org/milostosic/rmem)
+[![Build status](https://ci.appveyor.com/api/projects/status/ewhuw1iudkw36q96?svg=true)](https://ci.appveyor.com/project/milostosic/rmem)
+[![License](https://img.shields.io/badge/license-BSD--2%20clause-blue.svg)](https://github.com/milostosic/rmem/blob/master/LICENSE)
+
 SDK for [MTuner](http://mtuner.net/), providing additional features and cross-platform support.
 
 Source Code
