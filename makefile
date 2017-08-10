@@ -16,38 +16,38 @@ all:
 
 gmake-linux:
 	$(GENIE) --file=genie/genie.lua --gcc=linux-gcc gmake
-linux-debug32: ../.build/projects/gmake-linux
-	make -R -C .build/projects/gmake-linux config=debug32
-linux-release32: ../.build/projects/gmake-linux
-	make -R -C .build/projects/gmake-linux config=release32
-linux-debug64: ../.build/projects/gmake-linux
-	make -R -C .build/projects/gmake-linux config=debug64
-linux-release64: ../.build/projects/gmake-linux
-	make -R -C .build/projects/gmake-linux config=release64
+linux-debug32: gmake-linux
+	make -R -C ../.build/linux/gcc/projects/rmem config=debug32
+linux-release32: gmake-linux
+	make -R -C ../.build/linux/gcc/projects/rmem config=release32
+linux-debug64: gmake-linux
+	make -R -C ../.build/linux/gcc/projects/rmem config=debug64
+linux-release64: gmake-linux
+	make -R -C ../.build/linux/gcc/projects/rmem config=release64
 linux: linux-debug32 linux-release32 linux-debug64 linux-release64
 
 gmake-mingw-gcc:
 	$(GENIE) --file=genie/genie.lua --gcc=mingw-gcc gmake
-mingw-gcc-debug32: ../.build/projects/gmake-mingw-gcc
-	make -R -C .build/projects/gmake-mingw-gcc config=debug32
-mingw-gcc-release32: ../.build/projects/gmake-mingw-gcc
-	make -R -C .build/projects/gmake-mingw-gcc config=release32
-mingw-gcc-debug64: ../.build/projects/gmake-mingw-gcc
-	make -R -C .build/projects/gmake-mingw-gcc config=debug64
-mingw-gcc-release64: ../.build/projects/gmake-mingw-gcc
-	make -R -C .build/projects/gmake-mingw-gcc config=release64
+mingw-gcc-debug32: gmake-mingw-gcc
+	make -R -C ../.build/windows/mingw-gcc/projects/rmem config=debug32
+mingw-gcc-release32: gmake-mingw-gcc
+	make -R -C ../.build/windows/mingw-gcc/projects/rmem config=release32
+mingw-gcc-debug64: gmake-mingw-gcc
+	make -R -C ../.build/windows/mingw-gcc/projects/rmem config=debug64
+mingw-gcc-release64: gmake-mingw-gcc
+	make -R -C ../.build/windows/mingw-gcc/projects/rmem config=release64
 mingw-gcc: mingw-gcc-debug32 mingw-gcc-release32 mingw-gcc-debug64 mingw-gcc-release64
 
 gmake-mingw-clang:
 	$(GENIE) --file=genie/genie.lua --clang=mingw-clang gmake
-mingw-clang-debug32: .build/projects/gmake-mingw-clang
-	make -R -C .build/projects/gmake-mingw-clang config=debug32
-mingw-clang-release32: .build/projects/gmake-mingw-clang
-	make -R -C .build/projects/gmake-mingw-clang config=release32
-mingw-clang-debug64: .build/projects/gmake-mingw-clang
-	make -R -C .build/projects/gmake-mingw-clang config=debug64
-mingw-clang-release64: .build/projects/gmake-mingw-clang
-	make -R -C .build/projects/gmake-mingw-clang config=release64
+mingw-clang-debug32: gmake-mingw-clang
+	make -R -C ../.build/windows/mingw-clang/projects/rmem config=debug32
+mingw-clang-release32: gmake-mingw-clang
+	make -R -C ../.build/windows/mingw-clang/projects/rmem config=release32
+mingw-clang-debug64: gmake-mingw-clang
+	make -R -C ../.build/windows/mingw-clang/projects/rmem config=debug64
+mingw-clang-release64: gmake-mingw-clang
+	make -R -C ../.build/windows/mingw-clang/projects/rmem config=release64
 mingw-clang: mingw-clang-debug32 mingw-clang-release32 mingw-clang-debug64 mingw-clang-release64
 
 vs2012:
