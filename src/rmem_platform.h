@@ -73,6 +73,7 @@
 #elif RMEM_PLATFORM_LINUX || RMEM_PLATFORM_OSX
 	#include <pthread.h>
 	#include <sys/time.h>
+	#include <sys/syscall.h>
 #elif RMEM_PLATFORM_ANDROID
 	#include <unwind.h>
 	#include <pthread.h>
