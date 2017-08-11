@@ -16,8 +16,11 @@ function rmemExtraConfig_linker()
 		if "mingw" == _OPTIONS["gcc"] then -- on windows, we patch heap functions, no need to wrap malloc family of funcs
 			linkoptions { "-Wl,--wrap=_malloc_init--export-all-symbols" }
 			links { "psapi" }
-		else
-			linkoptions { "-Wl,--wrap=_malloc_init,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign,--wrap=_expand,--export-all-symbols" }
+		else 
+			linkoptions { "-Wl,--wrap=_malloc_init,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign,--wrap=_expand" }
+			if not os.is("linux") then
+				linkoptions { "--export-all-symbols" }
+			end
 		end
 	configuration { "vs*" }
 		linkoptions { "/ENTRY:rmemEntry" }
