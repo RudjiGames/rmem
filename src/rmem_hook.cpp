@@ -398,8 +398,8 @@ void MemoryHook::alloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t _o
 	uint8_t		tmpBuffer[2048+128];
 	uint32_t	tmpBufferPtr = 0;
 
-	const uint8_t marker = LogMarkers::OpAlloc;
-	addVarToBuffer(marker, tmpBuffer, tmpBufferPtr);
+	const uint8_t opMarker = LogMarkers::OpAlloc;
+	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_handle, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(getThreadID(), tmpBuffer, tmpBufferPtr);
 
@@ -426,8 +426,8 @@ void MemoryHook::realloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t 
 	uint8_t		tmpBuffer[2048+128];
 	uint32_t	tmpBufferPtr = 0;
 
-	const uint8_t marker = LogMarkers::OpRealloc;
-	addVarToBuffer(marker, tmpBuffer, tmpBufferPtr);
+	const uint8_t opMarker = LogMarkers::OpRealloc;
+	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_handle, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(getThreadID(), tmpBuffer, tmpBufferPtr);
 
@@ -456,8 +456,8 @@ void MemoryHook::allocAligned(uint64_t _handle, void* _ptr, uint32_t _size, uint
 	uint8_t		tmpBuffer[2048+128];
 	uint32_t	tmpBufferPtr = 0;
 
-	const uint8_t marker = LogMarkers::OpAllocAligned;
-	addVarToBuffer(marker, tmpBuffer, tmpBufferPtr);
+	const uint8_t opMarker = LogMarkers::OpAllocAligned;
+	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_handle, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(getThreadID(), tmpBuffer, tmpBufferPtr);
 
@@ -486,8 +486,8 @@ void MemoryHook::reallocAligned(uint64_t _handle, void* _ptr, uint32_t _size, ui
 	uint8_t		tmpBuffer[2048+128];
 	uint32_t	tmpBufferPtr = 0;
 
-	const uint8_t marker = LogMarkers::OpReallocAligned;
-	addVarToBuffer(marker, tmpBuffer, tmpBufferPtr);
+	const uint8_t opMarker = LogMarkers::OpReallocAligned;
+	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_handle, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(getThreadID(), tmpBuffer, tmpBufferPtr);
 
@@ -518,8 +518,8 @@ void MemoryHook::free(uint64_t _handle, void* _ptr)
 	uint8_t		tmpBuffer[2048+128];
 	uint32_t	tmpBufferPtr = 0;
 
-	const uint8_t marker = LogMarkers::OpFree;
-	addVarToBuffer(marker, tmpBuffer, tmpBufferPtr);
+	const uint8_t opMarker = LogMarkers::OpFree;
+	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_handle, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(getThreadID(), tmpBuffer, tmpBufferPtr);
 
