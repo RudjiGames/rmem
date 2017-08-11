@@ -60,7 +60,7 @@ extern "C" {
 			return;
 
 		uint8_t* buff = getMemoryHookBuffer();
-		new (rmemPlacementNew, buff) rmem::MemoryHook(_data);
+		new (rmemPlacementNew(), buff) rmem::MemoryHook(_data);
 		hook = (rmem::MemoryHook*)buff;
 	}
 
