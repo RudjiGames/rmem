@@ -6,7 +6,6 @@
 #include "../inc/rmem.h"
 #include "rmem_hook.h"
 #include "rmem_utils.h"
-#include <new>
 
 	rmem::MemoryHook*& getMemoryHookPtr()
 	{
@@ -49,6 +48,11 @@ extern "C" {
 	}
 #endif
 
+	// Avoid include <new>
+	struct rmemPlacementNew {};
+	inline void* operator new(size_t, rmemPlacementNew, void* ptr) { return ptr; }
+	inline void operator delete(void*, rmemPlacementNew, void*) {}
+
 	void rmemInit(void* _data)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
@@ -56,7 +60,7 @@ extern "C" {
 			return;
 
 		uint8_t* buff = getMemoryHookBuffer();
-		new (buff) rmem::MemoryHook(_data);
+		new (rmemPlacementNew, buff) rmem::MemoryHook(_data);
 		hook = (rmem::MemoryHook*)buff;
 	}
 

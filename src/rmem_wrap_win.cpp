@@ -6,7 +6,6 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 
 #include "rmem_platform.h"
-#include <new>
 
 #if RMEM_PLATFORM_WINDOWS
 
