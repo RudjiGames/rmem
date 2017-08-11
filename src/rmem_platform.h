@@ -72,8 +72,10 @@
 	#include <stdio.h>	// FILE
 #elif RMEM_PLATFORM_LINUX || RMEM_PLATFORM_OSX
 	#include <pthread.h>
+	#include <unistd.h> // syscall
 	#include <sys/time.h>
 	#include <sys/syscall.h>
+	#include <execinfo.h>
 #elif RMEM_PLATFORM_ANDROID
 	#include <unwind.h>
 	#include <pthread.h>
