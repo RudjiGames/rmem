@@ -17,9 +17,9 @@ function rmemExtraConfig_linker()
 			linkoptions { "-Wl,--wrap=_malloc_init--export-all-symbols" }
 			links { "psapi" }
 		else 
-			linkoptions { "-Wl,--wrap=_malloc_init,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign,--wrap=_expand" }
+			linkoptions { "-Wl,--wrap=_malloc_init,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign" }
 			if not os.is("linux") then
-				linkoptions { "--export-all-symbols" }
+				linkoptions { "--export-all-symbols,--wrap=_expand" }
 			end
 		end
 	configuration { "vs*" }
