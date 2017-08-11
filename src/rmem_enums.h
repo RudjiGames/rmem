@@ -9,7 +9,7 @@
 namespace rmem {
 
 //--------------------------------------------------------------------------
-/// Defines strack trace storage per entry
+/// Defines stack trace storage per entry
 //--------------------------------------------------------------------------
 struct EntryTags
 {
