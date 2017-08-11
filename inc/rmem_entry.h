@@ -48,6 +48,7 @@ extern "C" {
 	#define RMEM_NO_MALLOC_INIT
 	#define RMEM_NO_MEMALIGN
 	#define RMEM_NO_REALLOCALIGN
+	#define RMEM_NO_EXPAND
 	#include <malloc.h>
 #endif /* RMEM_PLATFORM_LINUX */
 
