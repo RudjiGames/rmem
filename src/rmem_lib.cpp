@@ -7,35 +7,35 @@
 #include "rmem_hook.h"
 #include "rmem_utils.h"
 
-	rmem::MemoryHook*& getMemoryHookPtr()
-	{
-		static rmem::MemoryHook* ptr = NULL;
-		return ptr;
-	}
+rmem::MemoryHook*& getMemoryHookPtr()
+{
+	static rmem::MemoryHook* ptr = NULL;
+	return ptr;
+}
 
-	uint8_t* getMemoryHookBuffer()
-	{
-		static uint8_t buffer[sizeof(rmem::MemoryHook)];
-		return buffer;
-	}
+uint8_t* getMemoryHookBuffer()
+{
+	static uint8_t buffer[sizeof(rmem::MemoryHook)];
+	return buffer;
+}
 
-	/// RMemTagScope constructor, enters the tag scope
-	RMemTagScope::RMemTagScope( RMemTag* _tag ) : m_tag(_tag)
-	{
-		rmemEnterTag(m_tag);
-	}
+/// RMemTagScope constructor, enters the tag scope
+RMemTagScope::RMemTagScope( RMemTag* _tag ) : m_tag(_tag)
+{
+	rmemEnterTag(m_tag);
+}
 
-	/// RMemTagScope destructor, leaves the tag scope
-	RMemTagScope::~RMemTagScope()
-	{
-		rmemLeaveTag(m_tag);
-	}
+/// RMemTagScope destructor, leaves the tag scope
+RMemTagScope::~RMemTagScope()
+{
+	rmemLeaveTag(m_tag);
+}
 
-	/// RMemTagRegistration constructor
-	RMemTagRegistration::RMemTagRegistration(const char* _name, const char* _parentName)
-	{
-		rmemRegisterTag(_name, _parentName);
-	} 
+/// RMemTagRegistration constructor
+RMemTagRegistration::RMemTagRegistration(const char* _name, const char* _parentName)
+{
+	rmemRegisterTag(_name, _parentName);
+} 
 
 extern "C" {
 
