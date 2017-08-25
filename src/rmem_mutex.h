@@ -90,6 +90,7 @@ namespace rmem {
 		scePthreadMutexattrInit(&mutexAttr);
 		scePthreadMutexattrSettype(&mutexAttr, SCE_PTHREAD_MUTEX_RECURSIVE);
 		scePthreadMutexInit(_mutex, &mutexAttr, 0);
+		scePthreadMutexattrDestroy(&mutexAttr);
 	}
 
 	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex) {
