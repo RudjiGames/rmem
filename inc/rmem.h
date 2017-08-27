@@ -13,8 +13,8 @@
  * THE SOFTWARE
  */
 
-#ifndef __RMEM_RMEM_H__
-#define __RMEM_RMEM_H__
+#ifndef RMEM_RMEM_H
+#define RMEM_RMEM_H
 
 #include <stdint.h>
 
@@ -336,5 +336,5 @@ struct RMemTagRegistration
 
 #endif /* __cplusplus */
 
-#endif /* __RMEM_RMEM_H__ */
+#endif /* RMEM_RMEM_H */
 

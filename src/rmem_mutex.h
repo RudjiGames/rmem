@@ -3,8 +3,8 @@
  * License: http://www.opensource.org/licenses/BSD-2-Clause
  */
 
-#ifndef __RMEM_MUTEX_H__
-#define __RMEM_MUTEX_H__
+#ifndef RMEM_MUTEX_H
+#define RMEM_MUTEX_H
 
 #include "rmem_platform.h"
 
@@ -170,4 +170,4 @@ namespace rmem {
 
 } // namespace rmem
 
-#endif // __RMEM_MUTEX_H__
+#endif // RMEM_MUTEX_H

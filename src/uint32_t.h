@@ -23,8 +23,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE
 
-#ifndef __RMEM_UINT32_H__
-#define __RMEM_UINT32_H__
+#ifndef RMEM_UINT32_H
+#define RMEM_UINT32_H
 
 #include "rmem_platform.h"
 
@@ -438,4 +438,4 @@ namespace rmem {
 
 } // namespace rmem
 
-#endif // __RMEM_UINT32_H__
+#endif // RMEM_UINT32_H

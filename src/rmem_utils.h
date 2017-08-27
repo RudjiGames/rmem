@@ -3,8 +3,8 @@
  * License: http://www.opensource.org/licenses/BSD-2-Clause
  */
 
-#ifndef __RMEM_UTILS_H__
-#define __RMEM_UTILS_H__
+#ifndef RMEM_UTILS_H
+#define RMEM_UTILS_H
 
 #include "rmem_platform.h"
 
@@ -153,4 +153,4 @@ namespace rmem {
 
 } // namespace rmem
 
-#endif // __RMEM_UTILS_H__
+#endif // RMEM_UTILS_H

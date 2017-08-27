@@ -3,8 +3,8 @@
  * License: http://www.opensource.org/licenses/BSD-2-Clause
  */
 
-#ifndef __RMEM_PLATFORM_H__
-#define __RMEM_PLATFORM_H__
+#ifndef RMEM_PLATFORM_H
+#define RMEM_PLATFORM_H
 
 #include "../inc/rmem.h"
 #include "rmem_config.h"
@@ -257,4 +257,4 @@ inline uint64_t getCPUFrequency()
 #endif
 }
 
-#endif // __RMEM_PLATFORM_H__
+#endif // RMEM_PLATFORM_H

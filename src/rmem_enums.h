@@ -3,8 +3,8 @@
  * License: http://www.opensource.org/licenses/BSD-2-Clause
  */
 
-#ifndef __RMEM_ENUMS_H__
-#define __RMEM_ENUMS_H__
+#ifndef RMEM_ENUMS_H
+#define RMEM_ENUMS_H
 
 namespace rmem {
 
@@ -84,4 +84,4 @@ struct ToolChain
 
 } // namespace rmem
 
-#endif // __RMEM_ENUMS_H__
+#endif // RMEM_ENUMS_H

@@ -13,8 +13,8 @@
  * THE SOFTWARE
  */
 
-#ifndef __RMEM_RMEM_ENTRY_H__
-#define __RMEM_RMEM_ENTRY_H__
+#ifndef RMEM_RMEM_ENTRY_H
+#define RMEM_RMEM_ENTRY_H
 
 #include "rmem.h"
 #include <stddef.h> // size_t
@@ -308,4 +308,4 @@ extern "C" {
 	/*#define RMEM_ENTRY_WINDOWED*/
 #endif /* _MSC_VER */
 
-#endif /* __RMEM_RMEM_ENTRY_H__ */
+#endif /* RMEM_RMEM_ENTRY_H */

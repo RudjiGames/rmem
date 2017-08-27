@@ -3,8 +3,8 @@
  * License: http://www.opensource.org/licenses/BSD-2-Clause
  */
 
-#ifndef __RMEM_HOOK_H__
-#define __RMEM_HOOK_H__
+#ifndef RMEM_HOOK_H
+#define RMEM_HOOK_H
 
 #include "../inc/rmem.h"
 #include "rmem_config.h"
@@ -122,4 +122,4 @@ namespace rmem {
 
 } // namespace rmem
 
-#endif // __RMEM_HOOK_H__
+#endif // RMEM_HOOK_H

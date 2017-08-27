@@ -3,8 +3,8 @@
  * License: http://www.opensource.org/licenses/BSD-2-Clause
  */
 
-#ifndef __RMEM_CONFIG_H__
-#define __RMEM_CONFIG_H__
+#ifndef RMEM_CONFIG_H
+#define RMEM_CONFIG_H
 
 /// If enabled, reduces capture file size by keeping a recored of already 
 /// saved stack traces and storing their hash instead
@@ -37,5 +37,5 @@
 /// If enabled, no allocation tracking is done until rmemStartCapture() is called
 #define RMEM_ENABLE_DELAYED_CAPTURE				0
 
-#endif // __RMEM_CONFIG_H__
+#endif // RMEM_CONFIG_H
 
