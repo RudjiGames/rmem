@@ -10,9 +10,14 @@
 #include <windows.h>
 #include <TlHelp32.h>
 #include <Psapi.h>
-#if RMEM_COMPILER_MSVC
-#pragma comment(lib,"psapi.lib")
-#endif // RMEM_COMPILER_GCC
+
+typedef BOOL  (WINAPI * fnGetModuleInformation)(HANDLE hProcess, HMODULE hModule, LPMODULEINFO lpmodinfo, DWORD cb);
+typedef BOOL  (WINAPI * fnEnumProcessModules)(HANDLE hProcess, HMODULE* lphModule, DWORD cb, LPDWORD lpcbNeeded);
+typedef DWORD (WINAPI * fnGetModuleFileNameExW)(HANDLE  hProcess, HMODULE hModule, LPWSTR lpFilename, DWORD nSize);
+
+extern fnGetModuleInformation	gFn_getModuleInformation;
+extern fnEnumProcessModules		gFn_enumProcessModules;
+extern fnGetModuleFileNameExW	gFn_getModuleFileNameExW;
 #endif
 
 namespace rmem {
@@ -34,16 +39,16 @@ uint32_t getSymbolInfo(uint8_t* _buffer)
 			HMODULE hMods[1024];
 			DWORD cbNeeded;
 
-			if (EnumProcessModules(GetCurrentProcess(), hMods, sizeof(hMods), &cbNeeded))
+			if (gFn_enumProcessModules(GetCurrentProcess(), hMods, sizeof(hMods), &cbNeeded))
 			{
 				for (uint32_t i=0; i<(cbNeeded/sizeof(HMODULE)); ++i)
 				{
 					wchar_t szModName[MAX_PATH];
 
 					MODULEINFO mi;
-					GetModuleInformation(GetCurrentProcess(), hMods[i], &mi, sizeof(mi) );
+					gFn_getModuleInformation(GetCurrentProcess(), hMods[i], &mi, sizeof(mi) );
 					
-					if (GetModuleFileNameExW(GetCurrentProcess(), hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+					if (gFn_getModuleFileNameExW(GetCurrentProcess(), hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
 					{
 						uint64_t modBase = (uint64_t)mi.lpBaseOfDll;
 						uint64_t modSize = (uint64_t)mi.SizeOfImage;

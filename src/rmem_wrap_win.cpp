@@ -17,6 +17,16 @@
 wchar_t g_prefixAppData[512];
 typedef HRESULT (WINAPI *fnSHGetFolderPathW)(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
 
+// PSAPI
+
+typedef BOOL  (WINAPI * fnGetModuleInformation)(HANDLE hProcess, HMODULE hModule, LPMODULEINFO lpmodinfo, DWORD cb);
+typedef BOOL  (WINAPI * fnEnumProcessModules)(HANDLE hProcess, HMODULE* lphModule, DWORD cb, LPDWORD lpcbNeeded);
+typedef DWORD (WINAPI * fnGetModuleFileNameExW)(HANDLE  hProcess, HMODULE hModule, LPWSTR lpFilename, DWORD nSize);
+
+fnGetModuleInformation	gFn_getModuleInformation	= 0;
+fnEnumProcessModules	gFn_enumProcessModules		= 0;
+fnGetModuleFileNameExW	gFn_getModuleFileNameExW	= 0;
+
 #if !RMEM_COMPILER_GCC
 #pragma warning (push)
 #pragma warning (disable:4127)
@@ -132,7 +142,7 @@ HMODULE WINAPI detour_LoadLibraryA(LPCSTR _fileName)
 	if (ret != NULL)
 	{
 		MODULEINFO info;
-		if (0 == GetModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
+		if (0 == gFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
 			return ret;
 		char fullPath[1024];
 		if (0 == GetModuleFileNameA(ret, fullPath, 1024))
@@ -148,7 +158,7 @@ HMODULE WINAPI detour_LoadLibraryW(LPCWSTR _fileName)
 	if (ret != NULL)
 	{
 		MODULEINFO info;
-		if (0 == GetModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
+		if (0 == gFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
 			return ret;
 		wchar_t fullPath[1024];
 		if (0 == GetModuleFileNameW(ret, fullPath, 1024))
@@ -164,7 +174,7 @@ HMODULE WINAPI detour_LoadLibraryExA(LPCSTR _fileName, HANDLE _file, DWORD _flag
 	if (ret != NULL)
 	{
 		MODULEINFO info;
-		if (0 == GetModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
+		if (0 == gFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
 			return ret;
 		char fullPath[1024];
 		if (0 == GetModuleFileNameA(ret, fullPath, 1024))
@@ -180,7 +190,7 @@ HMODULE WINAPI detour_LoadLibraryExW(LPCWSTR _fileName, HANDLE _file, DWORD _fla
 	if (ret != NULL)
 	{
 		MODULEINFO info;
-		if (0 == GetModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
+		if (0 == gFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
 			return ret;
 		wchar_t fullPath[1024];
 		if (0 == GetModuleFileNameW(ret, fullPath, 1024))
@@ -205,10 +215,23 @@ extern "C"
 			MH_Uninitialize();
 	}
 
+	FARPROC loadFunc(HMODULE _kernel, HMODULE _psapi, const char* _name)
+	{
+		FARPROC ret = ::GetProcAddress(_kernel, _name);
+		if (!ret && (_psapi != 0))
+			ret = ::GetProcAddress(_psapi, _name);
+		return ret;
+	}
+
 	void rmemHookAllocs(int _isLinkerBased)
 	{
-		HMODULE hntdll32 = ::GetModuleHandleA("ntdll");
-		HMODULE kerneldll32 = ::GetModuleHandleA("kernel32");
+		HMODULE hntdll32	= ::GetModuleHandleA("ntdll");
+		HMODULE kerneldll32	= ::GetModuleHandleA("kernel32");
+		HMODULE psapiDLL	= ::LoadLibraryA("Psapi.dll");
+
+		gFn_getModuleInformation	= (fnGetModuleInformation)loadFunc(kerneldll32, psapiDLL, "GetModuleInformation");
+		gFn_enumProcessModules		= (fnEnumProcessModules)  loadFunc(kerneldll32, psapiDLL, "EnumProcessModules");
+		gFn_getModuleFileNameExW	= (fnGetModuleFileNameExW)loadFunc(kerneldll32, psapiDLL, "GetModuleFileNameExW");
 
 		g_prefixAppData[0] = 0;
 		HMODULE shelldll32 = ::LoadLibraryA("Shell32");
