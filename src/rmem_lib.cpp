@@ -49,7 +49,7 @@ extern "C" {
 #endif
 
 	// Avoid include <new>
-	struct rmemPlacementNew {};
+	struct rmemPlacementNew { uint8_t m_dummy; };
 	inline void* operator new(size_t, rmemPlacementNew, void* ptr) { return ptr; }
 	inline void operator delete(void*, rmemPlacementNew, void*) {}
 

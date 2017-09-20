@@ -18,18 +18,25 @@ function rmemExtraConfig_linker()
 			links { "psapi" }
 		else 
 			linkoptions { "-Wl,--wrap=_malloc_init,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign" }
-			if not os.is("linux") then
+			if not os.is("linux") and not (_OPTIONS["gcc"] == "orbis") then
 				linkoptions { "--export-all-symbols,--wrap=_expand" }
 			end
 		end
-	configuration { "vs*" }
+		
+	configuration { "vs*", "orbis" }
+		linkoptions { "-Wl,--wrap=_malloc_init,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign" }
+
+	configuration { "vs*", "not orbis" }
 		linkoptions { "/ENTRY:rmemEntry" }
+
 	configuration {}
 end
 
 function rmemExtraConfig_manual()
 	configuration { "windows", "gmake" }
-		linkoptions { "-Wl,--export-all-symbols" }
+		if not (_OPTIONS["gcc"] == "orbis") then
+			linkoptions { "-Wl,--export-all-symbols" }
+		end
 		if "mingw" == _OPTIONS["gcc"] then
 			links { "psapi" }
 		end
