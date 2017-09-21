@@ -89,7 +89,7 @@
 #if defined(_XBOX_VER)
 #undef  RMEM_PLATFORM_XBOX360
 #define RMEM_PLATFORM_XBOX360	1
-#elif defined(_XBOX_ONE)
+#elif defined(_DURANGO) || defined(_XBOX_ONE)
 #undef  RMEM_PLATFORM_XBOXONE
 #define RMEM_PLATFORM_XBOXONE	1
 #elif defined(_WIN32) || defined(_WIN64) || defined(__WINDOWS__)

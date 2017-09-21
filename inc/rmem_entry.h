@@ -19,7 +19,7 @@
 #include "rmem.h"
 #include <stddef.h> // size_t
 
-#if RMEM_PLATFORM_WINDOWS || RMEM_PLATFORM_XBOX360
+#if RMEM_PLATFORM_WINDOWS || RMEM_PLATFORM_XBOX360 || RMEM_PLATFORM_XBOXONE
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -280,7 +280,7 @@ extern "C" {
 			WinMainCRTStartup();		\
 		}
 
-#elif RMEM_PLATFORM_XBOX360
+#elif RMEM_PLATFORM_XBOX360 || RMEM_PLATFORM_XBOXONE
 
 	#ifdef __cplusplus
 	extern "C" {
