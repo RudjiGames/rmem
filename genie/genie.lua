@@ -13,7 +13,8 @@ end
 
 function rmemExtraConfig_linker()
 	configuration { "gmake" }
-		if "mingw" == _OPTIONS["gcc"] then -- on windows, we patch heap functions, no need to wrap malloc family of funcs
+		if ("mingw-gcc"   == _OPTIONS["gcc"]) or -- on windows, we patch heap functions, no need to wrap malloc family of funcs
+		   ("mingw-clang" == _OPTIONS["gcc"]) then -- on windows, we patch heap functions, no need to wrap malloc family of funcs
 			linkoptions { "-Wl,--wrap=_malloc_init--export-all-symbols" }
 			links { "psapi" }
 		else 
