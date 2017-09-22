@@ -17,37 +17,37 @@ all:
 gmake-linux:
 	$(GENIE) --file=genie/genie.lua --gcc=linux-gcc gmake
 linux-debug32: gmake-linux
-	make -R -C ../.build/linux/gcc/projects/rmem config=debug32
+	make -R -C ../.build/linux/gcc/rmem/projects config=debug32
 linux-release32: gmake-linux
-	make -R -C ../.build/linux/gcc/projects/rmem config=release32
+	make -R -C ../.build/linux/gcc/rmem/projects config=release32
 linux-debug64: gmake-linux
-	make -R -C ../.build/linux/gcc/projects/rmem config=debug64
+	make -R -C ../.build/linux/gcc/rmem/projects config=debug64
 linux-release64: gmake-linux
-	make -R -C ../.build/linux/gcc/projects/rmem config=release64
+	make -R -C ../.build/linux/gcc/rmem/projects config=release64
 linux: linux-debug32 linux-release32 linux-debug64 linux-release64
 
 gmake-mingw-gcc:
 	$(GENIE) --file=genie/genie.lua --gcc=mingw-gcc gmake
 mingw-gcc-debug32: gmake-mingw-gcc
-	make -R -C ../.build/windows/mingw-gcc/projects/rmem config=debug32
+	make -R -C ../.build/windows/mingw-gcc/rmem/projects config=debug32
 mingw-gcc-release32: gmake-mingw-gcc
-	make -R -C ../.build/windows/mingw-gcc/projects/rmem config=release32
+	make -R -C ../.build/windows/mingw-gcc/rmem/projects config=release32
 mingw-gcc-debug64: gmake-mingw-gcc
-	make -R -C ../.build/windows/mingw-gcc/projects/rmem config=debug64
+	make -R -C ../.build/windows/mingw-gcc/rmem/projects config=debug64
 mingw-gcc-release64: gmake-mingw-gcc
-	make -R -C ../.build/windows/mingw-gcc/projects/rmem config=release64
+	make -R -C ../.build/windows/mingw-gcc/rmem/projects config=release64
 mingw-gcc: mingw-gcc-debug32 mingw-gcc-release32 mingw-gcc-debug64 mingw-gcc-release64
 
 gmake-mingw-clang:
 	$(GENIE) --file=genie/genie.lua --clang=mingw-clang gmake
 mingw-clang-debug32: gmake-mingw-clang
-	make -R -C ../.build/windows/mingw-clang/projects/rmem config=debug32
+	make -R -C ../.build/windows/mingw-clang/rmem/projects config=debug32
 mingw-clang-release32: gmake-mingw-clang
-	make -R -C ../.build/windows/mingw-clang/projects/rmem config=release32
+	make -R -C ../.build/windows/mingw-clang/rmem/projects config=release32
 mingw-clang-debug64: gmake-mingw-clang
-	make -R -C ../.build/windows/mingw-clang/projects/rmem config=debug64
+	make -R -C ../.build/windows/mingw-clang/rmem/projects config=debug64
 mingw-clang-release64: gmake-mingw-clang
-	make -R -C ../.build/windows/mingw-clang/projects/rmem config=release64
+	make -R -C ../.build/windows/mingw-clang/rmem/projects config=release64
 mingw-clang: mingw-clang-debug32 mingw-clang-release32 mingw-clang-debug64 mingw-clang-release64
 
 vs2012:
