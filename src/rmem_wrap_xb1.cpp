@@ -33,18 +33,17 @@ VOID WINAPI detour_XMEMFREE_ROUTINE(PVOID lpAddress, ULONGLONG dwAttributes)
 	XMemFreeDefault(lpAddress, dwAttributes);
 }
 
-void detour_exit(void);
-
 extern "C"
 {
 	void rmemUnhookAllocs();
 
-	void rmemHookAllocs(int /*_isLinkerBased*/)
+	void rmemHookAllocs(int _isLinkerBased)
 	{
 		XMemSetAllocationHooks(	&detour_XMEMALLOC_ROUTINE,
 								&detour_XMEMFREE_ROUTINE );
 
-		atexit(detour_exit);
+		if (!_isLinkerBased)
+			atexit(rmemUnhookAllocs);
 
 		rmemInit(0);
 	}
@@ -55,10 +54,5 @@ extern "C"
 		rmemShutDown();
 	}
 };
-
-void detour_exit(void)
-{
-	rmemUnhookAllocs();
-}
 
 #endif // RMEM_PLATFORM_XBOXONE
