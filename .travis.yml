@@ -16,6 +16,8 @@ addons:
     - clang
 
 before_script:
+    - git clone --depth 1 https://github.com/milostosic/rbase ../rbase
+    - git clone --depth 1 https://github.com/milostosic/rapp  ../rapp
     - git clone --depth 1 https://github.com/milostosic/build ../build
 
 script:
