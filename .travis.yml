@@ -17,7 +17,7 @@ addons:
 
 before_install:
     - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y libc6-dev-i386 gcc-5-multilib g++-5-multilib; fi
-    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y libx11-dev libx11-devel libxext-dev libxpm-dev libxrandr-dev libxrender-dev libxcursor-dev libxi-dev libxinerama-dev; fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y libx11-dev libxext-dev libxpm-dev libxrandr-dev libxrender-dev libxcursor-dev libxi-dev libxinerama-dev; fi
 
 before_script:
     - git clone --depth 1 https://github.com/milostosic/rbase ../rbase
