@@ -11,14 +11,13 @@ function projectExtraConfigExecutable_linker()
 			links { "psapi" }
 		else 
 			local wrap = "-Wl,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign"
-			if getTargetOS() ~= "linux" and getTargetOS() ~= "orbis" and getTargetOS() ~= "osx" then
+			if getTargetOS() ~= "linux" and getTargetOS() ~= "orbis" then
 				wrap = wrap .. ",--wrap=_expand"
 				linkoptions { "--export-all-symbols" }
 			end
 			if getTargetOS() ~= "osx" then
-				wrap = wrap .. ",--wrap=_malloc_init"
+				linkoptions { wrap }
 			end
-			linkoptions { wrap }
 		end
 		
 	configuration { "vs*", "orbis" }

@@ -30,7 +30,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* RMEM_PLATFORM_WINDOWS */
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !RMEM_PLATFORM_OSX
 
 #if RMEM_PLATFORM_WINDOWS
 	#define WINDOWS_LEAN_AND_MEAN
@@ -51,15 +51,6 @@ extern "C" {
 	#define RMEM_NO_EXPAND
 	#include <malloc.h>
 #endif /* RMEM_PLATFORM_LINUX */
-
-#if RMEM_PLATFORM_OSX
-	#define RMEM_NO_MALLOC_INIT
-	#define RMEM_NO_MEMALIGN
-	#define RMEM_NO_REALLOCALIGN
-	#define RMEM_NO_EXPAND
-	#include <malloc.h>
-	#define malloc_usable_size malloc_size
-#endif /* RMEM_PLATFORM_OSX */
 
 #if RMEM_PLATFORM_PS3 || RMEM_PLATFORM_PS4
 	#include <stdlib.h>	/* malloc_usable_size */
@@ -228,13 +219,13 @@ extern "C" {
 	#define RMEM_GCC_ENTRY_WRAP_4
 #endif /* RMEM_NO_REALLOCALIGN */
 
-#endif /* __GNUC__ */
+#endif /* defined(__GNUC__ ) && !RMEM_PLATFORM_OSX*/
 
 /*--------------------------------------------------------------------------
  * Program entry for link time binding to rmem/mtuner lib
  *------------------------------------------------------------------------*/
  
-#if __GNUC__
+#if defined(__GNUC__) && !RMEM_PLATFORM_OSX
 
 	#if RMEM_PLATFORM_WINDOWS
 
@@ -261,6 +252,52 @@ extern "C" {
 					RMEM_GCC_ENTRY_WRAP_4
 
 	#endif /* RMEM_PLATFORM_WINDOWS */
+
+#elif RMEM_PLATFORM_OSX
+	#include <dlfcn.h>
+
+	#define RMEM_ENTRY_CONSOLE																		\
+																									\
+	typedef void* (*real_malloc)(size_t);															\
+	void* malloc(size_t _blockSize)																	\
+	{																								\
+		real_malloc rm = dlsym(RTLD_NEXT, "malloc");												\
+		void* result = rm(_blockSize);																\
+		rmemAlloc(0, result, _blockSize, mallocGetOverhead(result, _blockSize));					\
+		return result;																				\
+	}																								\
+																									\
+	typedef void* (*real_realloc)(void* _ptr, size_t _blockSize)									\
+	void* realloc(void* _ptr, size_t _blockSize)													\
+	{																								\
+		real_realloc rr = (real_realloc)dlsym(RTLD_NEXT, "realloc");								\
+		void* result = rr(_ptr, _blockSize);														\
+		rmemRealloc(0, result, _blockSize, mallocGetOverhead(result, _blockSize), _ptr);			\
+		return result;																				\
+	}																								\
+																									\
+	typedef void* (*real_calloc)(size_t, size_t);													\
+	void* calloc(size_t _numElements, size_t _elementSize)											\
+	{																								\
+		real_calloc rc = (real_calloc)dlsym(RTLD_NEXT, "calloc");									\
+		void* result = rc(_numElements, _elementSize);												\
+		size_t totalSize = _numElements * _elementSize;												\
+		rmemAlloc(0, result, totalSize, mallocGetOverhead(result, totalSize));						\
+		return result;																				\
+	}																								\
+																									\
+	typedef void* (*real_free)(void*);																\
+	void free(void* _ptr)																			\
+	{																								\
+		if (!_ptr)																					\
+			return;																					\
+		real_free rf = (real_free)dlsym(RTLD_NEXT, "free");											\
+																									\
+		rmemFree(0, _ptr);																			\
+		rf(_ptr);																					\
+	}
+
+	#define RMEM_ENTRY_WINDOWED RMEM_ENTRY_CONSOLE
 
 #elif RMEM_PLATFORM_WINDOWS
 
