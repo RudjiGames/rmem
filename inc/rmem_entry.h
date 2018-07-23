@@ -261,7 +261,7 @@ extern "C" {
 	typedef void* (*real_malloc)(size_t);															\
 	void* malloc(size_t _blockSize)																	\
 	{																								\
-		real_malloc rm = dlsym(RTLD_NEXT, "malloc");												\
+		real_malloc rm = (real_malloc)dlsym(RTLD_NEXT, "malloc");									\
 		void* result = rm(_blockSize);																\
 		rmemAlloc(0, result, _blockSize, mallocGetOverhead(result, _blockSize));					\
 		return result;																				\
