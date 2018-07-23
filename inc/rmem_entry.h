@@ -256,6 +256,12 @@ extern "C" {
 #elif RMEM_PLATFORM_OSX
 	#include <dlfcn.h>
 
+	static inline uint32_t mallocGetOverhead(void* _ptr, size_t _size)
+	{
+		size_t usableSize = malloc_size(_ptr);
+		return usableSize - _size;
+	}
+
 	#define RMEM_ENTRY_CONSOLE																		\
 																									\
 	typedef void* (*real_malloc)(size_t);															\
