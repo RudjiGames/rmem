@@ -11,7 +11,7 @@ function projectExtraConfigExecutable_linker()
 			links { "psapi" }
 		else 
 			linkoptions { "-Wl,--wrap=_malloc_init,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign" }
-			if not os.is("linux") and not (_OPTIONS["gcc"] == "orbis") then
+			if getTargetOS() ~= "linux" and getTargetOS() ~= "orbis" and getTargetOS() ~= "osx" then
 				linkoptions { "--export-all-symbols,--wrap=_expand" }
 			end
 		end
