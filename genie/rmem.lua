@@ -12,8 +12,7 @@ function projectExtraConfigExecutable_linker()
 		else 
 			local wrap = "-Wl,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign"
 			if getTargetOS() ~= "linux" and getTargetOS() ~= "orbis" then
-				wrap = wrap .. ",--wrap=_expand"
-				linkoptions { "--export-all-symbols" }
+				wrap = wrap .. "--export-all-symbols,--wrap=_expand"
 			end
 			if getTargetOS() ~= "osx" then
 				linkoptions { wrap }

@@ -273,7 +273,7 @@ extern "C" {
 		return result;																				\
 	}																								\
 																									\
-	typedef void* (*real_realloc)(void* _ptr, size_t _blockSize)									\
+	typedef void* (*real_realloc)(void*, size_t);													\
 	void* realloc(void* _ptr, size_t _blockSize)													\
 	{																								\
 		real_realloc rr = (real_realloc)dlsym(RTLD_NEXT, "realloc");								\
