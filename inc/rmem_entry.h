@@ -255,6 +255,7 @@ extern "C" {
 
 #elif RMEM_PLATFORM_OSX
 	#include <dlfcn.h>
+	#include <malloc/malloc.h>
 
 	static inline uint32_t mallocGetOverhead(void* _ptr, size_t _size)
 	{
