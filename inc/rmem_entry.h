@@ -52,6 +52,15 @@ extern "C" {
 	#include <malloc.h>
 #endif /* RMEM_PLATFORM_LINUX */
 
+#if RMEM_PLATFORM_OSX
+	#define RMEM_NO_MALLOC_INIT
+	#define RMEM_NO_MEMALIGN
+	#define RMEM_NO_REALLOCALIGN
+	#define RMEM_NO_EXPAND
+	#include <malloc.h>
+	#define malloc_usable_size malloc_size
+#endif /* RMEM_PLATFORM_OSX */
+
 #if RMEM_PLATFORM_PS3 || RMEM_PLATFORM_PS4
 	#include <stdlib.h>	/* malloc_usable_size */
 	#define RMEM_NO_EXPAND
