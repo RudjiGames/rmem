@@ -61,12 +61,12 @@ vs2015:
 vs2017:
 	$(GENIE) --file=genie/genie.lua vs2017
 
-../.build/osx/gcc/rmem/projects:
+../.build/osx/clang/rmem/projects:
 	$(GENIE) --file=genie/genie.lua --gcc=osx gmake
-osx-debug64: ../.build/osx/gcc/rmem/projects
-	make -C ../.build/osx/gcc/rmem/projects config=debug64
-osx-release64: ../.build/osx/gcc/rmem/projects
-	make -C ../.build/osx/gcc/rmem/projects config=release64
+osx-debug64: ../.build/osx/clang/rmem/projects
+	make -C ../.build/osx/clang/rmem/projects config=debug64
+osx-release64: ../.build/osx/clang/rmem/projects
+	make -C ../.build/osx/clang/rmem/projects config=release64
 osx: osx-debug64 osx-release64
 
 clean:
