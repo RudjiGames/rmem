@@ -17,7 +17,7 @@ install:
   - git clone --depth 1 https://github.com/milostosic/rbase ..\rbase
   - git clone --depth 1 https://github.com/milostosic/rapp  ..\rapp
   - git clone --depth 1 https://github.com/milostosic/build ..\build
-  - ..\build\tools\windows\genie --file=genie\genie.lua %TOOLSET%
+  - ..\build\tools\bin\windows\genie --file=genie\genie.lua %TOOLSET%
 
 build:
   project: ../.build/windows/$(TOOLSET)/rmem/projects/rmem.sln
