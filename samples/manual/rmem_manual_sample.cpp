@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Milos Tosic. All Rights Reserved.
+ * Copyright (c) 2018 by Milos Tosic. All Rights Reserved.
  * License: http://www.opensource.org/licenses/BSD-2-Clause
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
