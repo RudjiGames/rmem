@@ -86,31 +86,36 @@ extern "C" {
 	void rmemRegisterTag(const char* _name, const char* _parentName)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		hook->registerTag(_name, _parentName);
+		if (hook)
+			hook->registerTag(_name, _parentName);
 	}
 
 	void rmemEnterTag(RMemTag* _tag)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		hook->enterTag(*_tag);
+		if (hook)
+			hook->enterTag(*_tag);
 	}
 
 	void rmemLeaveTag(RMemTag* _tag)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		hook->leaveTag(*_tag);
+		if (hook)
+			hook->leaveTag(*_tag);
 	}
 
 	void rmemRegisterMarker(RMemMarker* _marker)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		hook->registerMarker(*_marker);
+		if (hook)
+			hook->registerMarker(*_marker);
 	}
 
 	void rmemSetMarker(RMemMarker* _marker)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		hook->marker(*_marker);
+		if (hook)
+			hook->marker(*_marker);
 	}
 
 	void rmemRegisterAllocator( const char* _name, uint64_t _handle)
@@ -186,13 +191,15 @@ extern "C" {
 	void rmemAddModuleC(const char* _name, uint64_t _base, uint32_t _size)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		hook->registerModule(_name, _base, _size);
+		if (hook)
+			hook->registerModule(_name, _base, _size);
 	}
 
 	void rmemAddModuleW(const wchar_t* _name, uint64_t _base, uint32_t _size)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		hook->registerModule(_name, _base, _size);
+		if (hook)
+			hook->registerModule(_name, _base, _size);
 	}
 
 } // extern "C"
