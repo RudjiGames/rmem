@@ -65,8 +65,14 @@ extern "C" {
 	#define RMEM_NO_MALLOC_INIT
 	#define RMEM_NO_REALLOCALIGN
 	#define RMEM_NO_EXPAND
-	extern "C" { extern size_t dlmalloc_usable_size(const void* p);	}
-	#define malloc_usable_size dlmalloc_usable_size
+	/* comment out the line below to use DLMALLOC_USABLE_SIZE on Android */
+	/* #define RMEM_USE_DLMALLOC_USABLE_SIZE */
+	#ifdef RMEM_USE_DLMALLOC_USABLE_SIZE
+		extern "C" { extern size_t dlmalloc_usable_size(const void* p);	}
+		#define malloc_usable_size dlmalloc_usable_size
+	#else
+		extern "C" { extern size_t malloc_usable_size(const void* p);	}
+	#endif
 #endif
 
 #ifdef __cplusplus

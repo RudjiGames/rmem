@@ -5,8 +5,8 @@
 
 function projectExtraConfigExecutable_linker()
 	configuration { "gmake" }
-		if ("mingw-gcc"   == _OPTIONS["gcc"]) or -- on windows, we patch heap functions, no need to wrap malloc family of funcs
-		   ("mingw-clang" == _OPTIONS["gcc"]) then -- on windows, we patch heap functions, no need to wrap malloc family of funcs
+		if getTargetCompiler() == "mingw-gcc"	or	-- on windows, we patch heap functions, no need to wrap malloc family of funcs
+		   getTargetCompiler() == "mingw-clang"	then
 			linkoptions { "-Wl,--wrap=_malloc_init--export-all-symbols" }
 			links { "psapi" }
 		else 
@@ -30,7 +30,7 @@ end
 
 function projectExtraConfigExecutable_manual()
 	configuration { "windows", "gmake" }
-		if not (_OPTIONS["gcc"] == "orbis") then
+		if getTargetOS() ~= "orbis" and getTargetOS() ~= "android" then
 			linkoptions { "-Wl,--export-all-symbols" }
 		end
 		if "mingw" == _OPTIONS["gcc"] then
