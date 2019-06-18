@@ -57,6 +57,7 @@ struct ToolChain
 		Win_MSVC,
 		Win_gcc,
 		Linux_gcc,
+		Linux_clang,
 		OSX_gcc,
 		OSX_clang,
 		PS3_gcc,

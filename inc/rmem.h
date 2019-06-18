@@ -66,14 +66,14 @@
 #undef RMEM_COMPILER_SNC
 #define RMEM_COMPILER_SNC		1
 
-#elif defined(__GNUC__)
-#undef RMEM_COMPILER_GCC
-#define RMEM_COMPILER_GCC		1
-
 /* check for clang before GCC as clang defines GNU macros as well */
 #elif defined(__clang__)
 #undef RMEM_COMPILER_CLANG
 #define RMEM_COMPILER_CLANG		1
+
+#elif defined(__GNUC__)
+#undef RMEM_COMPILER_GCC
+#define RMEM_COMPILER_GCC		1
 
 #elif defined(_MSC_VER)
 #undef RMEM_COMPILER_MSVC
@@ -319,8 +319,6 @@ struct RMemTagRegistration
  *		RMEM_REGISTER_TAG("Main loop")
  *		RMEM_REGISTER_TAG_CHILD("Update", "Main loop")
  *------------------------------------------------------------------------*/
-#define TAG_AT_LINE(line) tag##line
-
 #define RMEM_REGISTER_TAG(_name)									\
 	RMemTagRegistration CONCAT(tag,__LINE__)(_name);				\
 
