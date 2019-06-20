@@ -9,7 +9,6 @@
 #include "rmem_platform.h"
 
 #include <string.h> // memcpy
-#include <wchar.h>
 
 #if RMEM_COMPILER_MSVC
 

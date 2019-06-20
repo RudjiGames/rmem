@@ -3,10 +3,6 @@
  * License: http://www.opensource.org/licenses/BSD-2-Clause
  */
 
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS // annoying MS warnings
-#endif // _CRT_SECURE_NO_WARNINGS
-
 #include "rmem_platform.h"
 #include "rmem_hook.h"
 #include "rmem_utils.h"
@@ -194,21 +190,21 @@ MemoryHook::MemoryHook(void* _data)
 	wchar_t* timeString = sGetTimeString(secBuff);
 
 	if (_data)
-		wcscpy(m_fileName, (wchar_t*)_data);
+		wcscpy_s(m_fileName, 512, (wchar_t*)_data);
 	else
 	{
 		m_fileName[0] = 0;
 		HMODULE shelldll32 = ::LoadLibraryA("Shell32");
 		if (shelldll32)
 		{
-			fnSHGetFolderPathW fn = (fnSHGetFolderPathW)::GetProcAddress(shelldll32, "SHGetFolderPathW");
+			fnSHGetFolderPathW fn = reinterpret_cast<fnSHGetFolderPathW>(reinterpret_cast<void*>(::GetProcAddress(shelldll32, "SHGetFolderPathW")));
 			if (fn)
 			{
 				if (SUCCEEDED(fn(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, m_fileName)))
 				{
-					wcscat(m_fileName, L"\\");
+					wcscat_s(m_fileName, 512, L"\\");
 					::CreateDirectoryW(m_fileName, 0);
-					wcscat(m_fileName, L"MTuner\\");
+					wcscat_s(m_fileName, 512, L"MTuner\\");
 					::CreateDirectoryW(m_fileName, 0);
 				}
 			}
@@ -218,7 +214,7 @@ MemoryHook::MemoryHook(void* _data)
 			FreeLibrary(shelldll32);
 		}
 		else
-			wcscpy(m_fileName, L"");
+			wcscpy_s(m_fileName, 512, L"");
 	}
 
 	wchar_t currFile[512];
@@ -229,7 +225,7 @@ MemoryHook::MemoryHook(void* _data)
 	wchar_t* name = &currFile[len+1];
 	wchar_t* endName = wcsstr(name, L".");
 	*endName = '\0';
-	wcscat(m_fileName, name);
+	wcscat_s(m_fileName, 512, name);
 #else
 	char secBuff[256];
 	char* timeString = sGetTimeString(secBuff);
@@ -256,8 +252,8 @@ MemoryHook::MemoryHook(void* _data)
 #endif
 
 #if RMEM_PLATFORM_WINDOWS
-	wcscat(m_fileName, timeString);
-	wcscat(m_fileName, L".MTuner");
+	wcscat_s(m_fileName, 512, timeString);
+	wcscat_s(m_fileName, 512, L".MTuner");
 #else
 	strcat(m_fileName, timeString);
 	strcat(m_fileName, ".MTuner");
@@ -734,7 +730,7 @@ void MemoryHook::writeToFile(void* _ptr, uint32_t _bytesToWrite)
 	if (!m_file)
 	{
 #if RMEM_PLATFORM_WINDOWS
-		m_file = _wfopen(m_fileName, L"ab");
+		_wfopen_s(&m_file, m_fileName, L"ab");
 #else
 		m_file = fopen(m_fileName, "ab");
 #endif
