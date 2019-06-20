@@ -10,8 +10,8 @@
 #include "uint32_t.h"
 
 #if RMEM_ENABLE_LZ4_COMPRESSION
-#include "../3rd/lz4-r173/lz4.h"
-#include "../3rd/lz4-r173/lz4.c"
+#include "../3rd/lz4-r191/lz4.h"
+#include "../3rd/lz4-r191/lz4.c"
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
 
 #if RMEM_PLATFORM_WINDOWS
