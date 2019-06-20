@@ -118,16 +118,19 @@ struct unwindArg
 static _Unwind_Reason_Code unwindTraceFunc(struct _Unwind_Context* _context, void* _arg) 
 {
 	unwindArg& arg = *(unwindArg*)_arg;
+	
+	if (arg.m_tracesToSkip)
+	{
+		--arg.m_tracesToSkip;
+		return _URC_NO_REASON;
+	}
+
 	void* ip = (void*)_Unwind_GetIP(_context);
-	if(nullptr == ip) 
+
+	if (nullptr == ip) 
 		return _URC_END_OF_STACK;
 	else
 	{
-		if (arg.m_tracesToSkip)
-		{
-			--arg.m_tracesToSkip;
-			return _URC_NO_REASON;
-		}
 		if (arg.m_numTraces < arg.m_framesSize)
 		{
 			arg.m_frames[arg.m_numTraces++] = (uintptr_t)ip;
