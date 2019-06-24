@@ -150,6 +150,9 @@ MemoryHook::MemoryHook(void* _data)
 
 #elif RMEM_PLATFORM_ANDROID
 
+	//	__GNUC__
+	//	__GNUC_MINOR__
+
 	#if	RMEM_CPU_ARM
 		toolChain = ToolChain::Android_arm;
 	#elif RMEM_CPU_MIPS
