@@ -7,7 +7,6 @@
 #include "rmem_hook.h"
 #include "rmem_utils.h"
 #include "rmem_enums.h"
-#include "uint32_t.h"
 
 #if RMEM_ENABLE_LZ4_COMPRESSION
 #include "../3rd/lz4-r191/lz4.h"
@@ -475,7 +474,7 @@ void MemoryHook::allocAligned(uint64_t _handle, void* _ptr, uint32_t _size, uint
 
 	const int64_t clock = getCPUClock() - m_startTime;
 	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
-	uint32_t bitIndex = rmem::uint32_cnttz(_alignment);
+	uint32_t bitIndex = uint32_cnttzl(_alignment);
 	addVarToBuffer((uint8_t)bitIndex, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_overhead, tmpBuffer, tmpBufferPtr);
@@ -507,7 +506,7 @@ void MemoryHook::reallocAligned(uint64_t _handle, void* _ptr, uint32_t _size, ui
 
 	const int64_t clock = getCPUClock() - m_startTime;
 	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
-	uint32_t bitIndex = rmem::uint32_cnttz(_alignment);
+	uint32_t bitIndex = uint32_cnttzl(_alignment);
 	addVarToBuffer((uint8_t)bitIndex, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_overhead, tmpBuffer, tmpBufferPtr);

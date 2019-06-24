@@ -11,22 +11,24 @@
 #include <string.h> // memcpy
 #include <wchar.h>	// wcscat_s
 
-#if RMEM_COMPILER_MSVC
-
-#include <stdlib.h>
-#define ROTL32(x,y)	_rotl(x,y)
-
-#else // defined(_MSC_VER)
-
-inline static uint32_t rotl32( uint32_t x, int8_t r )
-{
-  return (x << r) | (x >> (32 - r));
-}
-#define	ROTL32(x,y)	rotl32(x,y)
-
-#endif // !defined(_MSC_VER)
-
 namespace rmem {
+
+	inline uint32_t uint32_cnttzl(uint32_t _val)
+	{
+#if RMEM_COMPILER_MSVC && RMEM_PLATFORM_WINDOWS
+		unsigned long index;
+		_BitScanForward(&index, _val);
+		return index;
+#elif RMEM_COMPILER_GCC || RMEM_COMPILER_CLANG
+		return _val ? __builtin_ctz(_val) : sizeof(_val) * 8;
+#else
+		// slow but should almost never be used
+		for (int i = 0; i < sizeof(_val) * 8; ++i)
+			if (_val & (1 << i))
+				return i;
+		return 32;
+#endif
+	}
 
 	static inline uint32_t hashStr(const char* _string)
 	{
