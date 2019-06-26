@@ -181,6 +181,7 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 	return num;
 
 #elif RMEM_PLATFORM_ANDROID
+	
 	unwindArg arg;
 	arg.m_tracesToSkip	= _skip;
 	arg.m_numTraces		= 0;

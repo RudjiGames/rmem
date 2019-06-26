@@ -33,7 +33,7 @@ namespace rmem {
 			uint8_t		m_bufferCompressed[BufferSize];
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
 			Mutex		m_mutexInternalBufferPtrs;
-			Mutex		m_mutexOutputToFile;
+			Mutex		m_mutexWriteToFile;
 #if RMEM_PLATFORM_WINDOWS
 			wchar_t		m_fileName[512];
 #else
@@ -51,7 +51,7 @@ namespace rmem {
 			uint32_t	m_stackTraceHashes[MemoryHook::HashArraySize];
 
 #if	RMEM_STACK_TRACE_HASHING_PARANOIA
-			uintptr_t	m_stackTraces[MemoryHook::HashArraySize][RMEM_MAX_STACK_TRACES];
+			uintptr_t	m_stackTraces[MemoryHook::HashArraySize][RMEM_STACK_TRACE_MAX];
 #endif // RMEM_STACK_TRACE_HASHING_PARANOIA
 
 		public:

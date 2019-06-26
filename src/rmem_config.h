@@ -8,7 +8,7 @@
 
 /// If enabled, reduces capture file size by keeping a recored of already 
 /// saved stack traces and storing their hash instead
-#define RMEM_ENABLE_STACK_TRACE_HASHING			1
+#define RMEM_STACK_TRACE_ENABLE_HASHING			1
 
 /// If enabled, keeps stack traces along with their hashes for the purpose
 /// of solving possible hash collisions. Reduces performance!
@@ -24,7 +24,7 @@
 ///
 /// For platforms with heavy memory constraints, keeping this value low will
 /// minimize the impact of profiling on application functionality.
-#define RMEM_MAX_STACK_TRACES					256
+#define RMEM_STACK_TRACE_MAX					128
 
 /// If enabled, compresses the output stream using LZ4. Note that this is a
 /// CPU intensive process and might cause noticeable spikes in CPU usage.
@@ -37,5 +37,7 @@
 /// If enabled, no allocation tracking is done until rmemStartCapture() is called
 #define RMEM_ENABLE_DELAYED_CAPTURE				0
 
-#endif // RMEM_CONFIG_H
+/// Set to 1 to flush buffers after every file write.
+#define RMEM_FLUSH_FILE_WRITES					1
 
+#endif // RMEM_CONFIG_H

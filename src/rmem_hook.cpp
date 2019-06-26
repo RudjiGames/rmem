@@ -97,7 +97,7 @@ MemoryHook::MemoryHook(void* _data)
 
 #if	RMEM_STACK_TRACE_HASHING_PARANOIA
 	for (uint32_t i=0; i<HashArraySize; ++i)
-		for (uint32_t j=0; j<RMEM_MAX_STACK_TRACES; ++j)
+		for (uint32_t j=0; j<RMEM_STACK_TRACE_MAX; ++j)
 			m_stackTraces[i][j] = 0;
 #endif // RMEM_STACK_TRACE_HASHING_PARANOIA
 
@@ -149,9 +149,6 @@ MemoryHook::MemoryHook(void* _data)
 	toolChain		= ToolChain::PS4_clang;
 
 #elif RMEM_PLATFORM_ANDROID
-
-	//	__GNUC__
-	//	__GNUC_MINOR__
 
 	#if	RMEM_CPU_ARM
 		toolChain = ToolChain::Android_arm;
@@ -595,11 +592,11 @@ void MemoryHook::addStackTrace_full(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr, 
 //--------------------------------------------------------------------------
 void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 {
-	uintptr_t backTrace[RMEM_MAX_STACK_TRACES];
+	uintptr_t backTrace[RMEM_STACK_TRACE_MAX];
 
-	uint32_t numTraces = getStackTrace(backTrace, RMEM_MAX_STACK_TRACES, 0);
+	uint32_t numTraces = getStackTrace(backTrace, RMEM_STACK_TRACE_MAX, 0);
 
-#if	RMEM_ENABLE_STACK_TRACE_HASHING
+#if	RMEM_STACK_TRACE_ENABLE_HASHING
 
 	const uint32_t stackHash = (uint32_t)hashStackTrace(backTrace, numTraces);
 	const uint32_t stackIndex = stackHash & HashArrayMask;
@@ -657,12 +654,12 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 		else
 		{
 			/// different hash - write full stack
-#endif // RMEM_ENABLE_STACK_TRACE_HASHING
+#endif // RMEM_STACK_TRACE_ENABLE_HASHING
 			addStackTrace_full(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
-#if	RMEM_ENABLE_STACK_TRACE_HASHING
+#if	RMEM_STACK_TRACE_ENABLE_HASHING
 		}
 	}
-#endif // RMEM_ENABLE_STACK_TRACE_HASHING
+#endif // RMEM_STACK_TRACE_ENABLE_HASHING
 }
 
 //--------------------------------------------------------------------------
@@ -727,8 +724,8 @@ void MemoryHook::writeToFile(void* _ptr, uint32_t _bytesToWrite)
 	static const uint32_t compressedSig = 0x23234646;
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
 
-	m_mutexOutputToFile.lock();
-	
+	m_mutexWriteToFile.lock();
+
 	if (!m_file)
 	{
 #if RMEM_PLATFORM_WINDOWS
@@ -767,17 +764,22 @@ void MemoryHook::writeToFile(void* _ptr, uint32_t _bytesToWrite)
 	{
 		// no room left and file could not be opened -> no choice but to drop data :/
 		if (m_excessBufferSize + _bytesToWrite > MemoryHook::ExcessBufferSize)
+		{
+			m_mutexWriteToFile.unlock();
 			return;
+		}
 
 		m_excessBufferPtr = m_excessBuffer;
 		memcpy(&m_excessBuffer[m_excessBufferSize], _ptr, _bytesToWrite);
 		m_excessBufferSize += _bytesToWrite;
 	}
 	
+#if RMEM_FLUSH_FILE_WRITES
 	if (m_file)
 		fflush(m_file);
+#endif // RMEM_FLUSH_FILE_WRITES
 
-	m_mutexOutputToFile.unlock();
+	m_mutexWriteToFile.unlock();
 }
 
 //--------------------------------------------------------------------------
