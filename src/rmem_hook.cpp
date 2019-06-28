@@ -179,10 +179,10 @@ MemoryHook::MemoryHook(void* _data)
 	writeToBuffer(&toolChain, sizeof(toolChain));
 	writeToBuffer(&cpuFrequency, sizeof(cpuFrequency));
 		
-	writeSymbolInfo();
-
 	//----------- Header data written, below code can allocate memory ---------
 	m_ignoreAllocs = true;
+
+	writeModuleInfo();
 
 #if RMEM_PLATFORM_WINDOWS
 	wchar_t secBuff[256];
@@ -785,11 +785,11 @@ void MemoryHook::writeToFile(void* _ptr, uint32_t _bytesToWrite)
 //--------------------------------------------------------------------------
 /// Dump additional debug info to help resolving symbols
 //--------------------------------------------------------------------------
-extern uint32_t	getSymbolInfo(uint8_t* _buffer);
-void MemoryHook::writeSymbolInfo()
+extern uint32_t	getModuleInfo(uint8_t* _buffer);
+void MemoryHook::writeModuleInfo()
 {	
 	uint8_t buffer[32*1024];
-	uint32_t symbolDataSize = getSymbolInfo(buffer);
+	uint32_t symbolDataSize = getModuleInfo(buffer);
 
 	writeToBuffer(&symbolDataSize, sizeof(uint32_t));
 	writeToBuffer(buffer, symbolDataSize);

@@ -114,7 +114,7 @@ namespace rmem {
 			void writeToFile(void* _ptr, uint32_t _bytesToWrite);
 
 			/// Dump additional debug info to help resolving symbols
-			void writeSymbolInfo();
+			void writeModuleInfo();
 
 			/// swap buffers
 			uint8_t* doubleBuffer();

@@ -14,7 +14,7 @@ namespace rmem {
 
 #if RMEM_PLATFORM_WINDOWS
 
-	uint32_t getSymbolInfo(uint8_t* _buffer)
+	uint32_t getModuleInfo(uint8_t* _buffer)
 	{
 		loadModuleFuncs();
 
@@ -71,7 +71,7 @@ namespace rmem {
 
 #elif RMEM_PLATFORM_XBOX360
 
-	uint32_t getSymbolInfo(uint8_t* _buffer)
+	uint32_t getModuleInfo(uint8_t* _buffer)
 	{
 		HRESULT error;
 		PDM_WALK_MODULES pWalkMod = NULL;
@@ -96,9 +96,47 @@ namespace rmem {
 		return buffPtr;
 	}
 
+#elif RMEM_PLATFORM_ANDROID
+
+	uint32_t getModuleInfo(uint8_t* _buffer)
+	{
+		FILE* file = fopen("/proc/self/maps", "rt");
+		if (!file)
+			return 0;
+
+		uint32_t buffPtr = 0;
+
+		char buff[512];
+		while (fgets(buff, sizeof(buff), file))
+		{
+			if (strstr(buff, "r-xp"))
+			{
+				size_t len = strlen(buff);
+				buff[8] = 0;
+				uintptr_t modBase	= strtoul(buff,   0, 16);
+				uintptr_t modEnd	= strtoul(buff+9, 0, 16);
+
+				char* modName = buff + len;
+				while (*modName != ' ')
+				{
+					if (*modName == '\n') *modName = ' ';
+					--modName;
+				}
+				++modName;
+
+				addStrToBuffer(modName, _buffer, buffPtr, 0x23);
+				addVarToBuffer(modBase, _buffer, buffPtr);
+				addVarToBuffer(modEnd - modBase, _buffer, buffPtr);
+			}
+		}
+
+		fclose(file);
+		return buffPtr;
+	}
+
 #else 
 
-	uint32_t getSymbolInfo(uint8_t* _buffer)
+	uint32_t getModuleInfo(uint8_t* _buffer)
 	{
 		(void)_buffer;
 		return 0;
