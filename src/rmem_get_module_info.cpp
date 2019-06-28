@@ -16,6 +16,7 @@ namespace rmem {
 
 	uint32_t getModuleInfo(uint8_t* _buffer)
 	{
+		const uint8_t charSize = 2;
 		loadModuleFuncs();
 
 		uint32_t buffPtr = 0;
@@ -44,6 +45,8 @@ namespace rmem {
 						{
 							uint64_t modBase = (uint64_t)mi.lpBaseOfDll;
 							uint64_t modSize = (uint64_t)mi.SizeOfImage;
+
+							addVarToBuffer(charSize, _buffer, buffPtr);
 							addStrToBuffer(szModName, _buffer, buffPtr, 0x23);
 							addVarToBuffer(modBase, _buffer, buffPtr);
 							addVarToBuffer(modSize, _buffer, buffPtr);
@@ -56,6 +59,8 @@ namespace rmem {
 				{
 					uint64_t modBase = (uint64_t)me.modBaseAddr;
 					uint64_t modSize = (uint64_t)me.modBaseSize;
+
+					addVarToBuffer(charSize, _buffer, buffPtr);
 					addStrToBuffer(me.szExePath, _buffer, buffPtr, 0x23);
 					addVarToBuffer(modBase, _buffer, buffPtr);
 					addVarToBuffer(modSize, _buffer, buffPtr);
@@ -73,6 +78,8 @@ namespace rmem {
 
 	uint32_t getModuleInfo(uint8_t* _buffer)
 	{
+		const uint8_t charSize = 2;
+
 		HRESULT error;
 		PDM_WALK_MODULES pWalkMod = NULL;
 		DMN_MODLOAD modLoad;
@@ -83,6 +90,8 @@ namespace rmem {
 			// Examine the contents of modLoad.
 			uint64_t modBase = (uint64_t)(uint32_t)modLoad.BaseAddress;
 			uint64_t modSize = (uint64_t)modLoad.Size;
+
+			addVarToBuffer(charSize, _buffer, buffPtr);
 			addStrToBuffer(modLoad.Name, _buffer, buffPtr, 0x23);
 			addVarToBuffer(modBase, _buffer, buffPtr);
 			addVarToBuffer(modSize, _buffer, buffPtr);
@@ -100,6 +109,8 @@ namespace rmem {
 
 	uint32_t getModuleInfo(uint8_t* _buffer)
 	{
+		const uint8_t charSize = 1;
+
 		FILE* file = fopen("/proc/self/maps", "rt");
 		if (!file)
 			return 0;
@@ -124,6 +135,7 @@ namespace rmem {
 				}
 				++modName;
 
+				addVarToBuffer(charSize, _buffer, buffPtr);
 				addStrToBuffer(modName, _buffer, buffPtr, 0x23);
 				addVarToBuffer(modBase, _buffer, buffPtr);
 				addVarToBuffer(modEnd - modBase, _buffer, buffPtr);
