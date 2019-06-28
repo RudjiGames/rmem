@@ -20,6 +20,7 @@ namespace rmem {
 		loadModuleFuncs();
 
 		uint32_t buffPtr = 0;
+		addVarToBuffer(charSize, _buffer, buffPtr);
 
 		HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
 		if (snapshot != INVALID_HANDLE_VALUE)
@@ -46,7 +47,6 @@ namespace rmem {
 							uint64_t modBase = (uint64_t)mi.lpBaseOfDll;
 							uint64_t modSize = (uint64_t)mi.SizeOfImage;
 
-							addVarToBuffer(charSize, _buffer, buffPtr);
 							addStrToBuffer(szModName, _buffer, buffPtr, 0x23);
 							addVarToBuffer(modBase, _buffer, buffPtr);
 							addVarToBuffer(modSize, _buffer, buffPtr);
@@ -60,7 +60,6 @@ namespace rmem {
 					uint64_t modBase = (uint64_t)me.modBaseAddr;
 					uint64_t modSize = (uint64_t)me.modBaseSize;
 
-					addVarToBuffer(charSize, _buffer, buffPtr);
 					addStrToBuffer(me.szExePath, _buffer, buffPtr, 0x23);
 					addVarToBuffer(modBase, _buffer, buffPtr);
 					addVarToBuffer(modSize, _buffer, buffPtr);
@@ -84,6 +83,7 @@ namespace rmem {
 		PDM_WALK_MODULES pWalkMod = NULL;
 		DMN_MODLOAD modLoad;
 		uint32_t buffPtr = 0;
+		addVarToBuffer(charSize, _buffer, buffPtr);
 
 		while (XBDM_NOERR == (error = DmWalkLoadedModules(&pWalkMod, &modLoad)))
 		{
@@ -91,7 +91,6 @@ namespace rmem {
 			uint64_t modBase = (uint64_t)(uint32_t)modLoad.BaseAddress;
 			uint64_t modSize = (uint64_t)modLoad.Size;
 
-			addVarToBuffer(charSize, _buffer, buffPtr);
 			addStrToBuffer(modLoad.Name, _buffer, buffPtr, 0x23);
 			addVarToBuffer(modBase, _buffer, buffPtr);
 			addVarToBuffer(modSize, _buffer, buffPtr);
@@ -116,6 +115,7 @@ namespace rmem {
 			return 0;
 
 		uint32_t buffPtr = 0;
+		addVarToBuffer(charSize, _buffer, buffPtr);
 
 		char buff[512];
 		while (fgets(buff, sizeof(buff), file))
@@ -135,7 +135,6 @@ namespace rmem {
 				}
 				++modName;
 
-				addVarToBuffer(charSize, _buffer, buffPtr);
 				addStrToBuffer(modName, _buffer, buffPtr, 0x23);
 				addVarToBuffer(modBase, _buffer, buffPtr);
 				addVarToBuffer(modEnd - modBase, _buffer, buffPtr);
