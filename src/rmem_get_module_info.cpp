@@ -124,8 +124,8 @@ namespace rmem {
 			{
 				size_t len = strlen(buff);
 				buff[8] = 0;
-				uintptr_t modBase	= strtoul(buff,   0, 16);
-				uintptr_t modEnd	= strtoul(buff+9, 0, 16);
+				uint64_t modBase	= strtoul(buff, 0, 16);
+				uint64_t modEnd		= strtoul(buff+9, 0, 16);
 
 				char* modName = buff + len;
 				while (*modName != ' ')
