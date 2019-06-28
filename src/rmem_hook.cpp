@@ -391,7 +391,9 @@ static inline bool rmemIsCaptureEnabled(bool) { return true; }
 #endif
 
 #define RMEM_DELAYED_CAPTURE					\
-	if (!rmemIsCaptureEnabled(false)) return;
+	if (!rmemIsCaptureEnabled(false)) return;	\
+	if (m_ignoreAllocs) return;
+
 
 //--------------------------------------------------------------------------
 /// Called for each allocation
@@ -667,9 +669,6 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 //--------------------------------------------------------------------------
 void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _addStackTrace)
 {
-	if (m_ignoreAllocs)
-		return;
-
 	uint32_t sizeTemp = (uint32_t)_size;
 	if (_addStackTrace)
 	{
