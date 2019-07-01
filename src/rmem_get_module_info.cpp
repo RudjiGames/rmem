@@ -130,7 +130,8 @@ namespace rmem {
 				char* modName = buff + len;
 				while (*modName != ' ')
 				{
-					if (*modName == '\n') *modName = ' ';
+					if ((*modName == '\n') || (*modName == '\r'))
+						*modName = '\0';
 					--modName;
 				}
 				++modName;
