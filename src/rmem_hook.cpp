@@ -372,7 +372,7 @@ void MemoryHook::marker(RMemMarker& _marker)
 //--------------------------------------------------------------------------
 void MemoryHook::registerAllocator(const char* _name, uint64_t _handle)
 {
-	uint8_t		tmpBuffer[1024];
+	uint8_t		tmpBuffer[512];
 	uint32_t	tmpBufferPtr = 0;
 	
 	uint8_t Marker = LogMarkers::Allocator;
@@ -402,7 +402,7 @@ void MemoryHook::alloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t _o
 {
 	RMEM_DELAYED_CAPTURE
 
-	uint8_t		tmpBuffer[2048+128];
+	uint8_t		tmpBuffer[MemoryHook::OpBufferSize];
 	uint32_t	tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpAlloc;
@@ -430,7 +430,7 @@ void MemoryHook::realloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t 
 {
 	RMEM_DELAYED_CAPTURE
 
-	uint8_t		tmpBuffer[2048+128];
+	uint8_t		tmpBuffer[MemoryHook::OpBufferSize];
 	uint32_t	tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpRealloc;
@@ -460,7 +460,7 @@ void MemoryHook::allocAligned(uint64_t _handle, void* _ptr, uint32_t _size, uint
 {
 	RMEM_DELAYED_CAPTURE
 
-	uint8_t		tmpBuffer[2048+128];
+	uint8_t		tmpBuffer[MemoryHook::OpBufferSize];
 	uint32_t	tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpAllocAligned;
@@ -490,7 +490,7 @@ void MemoryHook::reallocAligned(uint64_t _handle, void* _ptr, uint32_t _size, ui
 {
 	RMEM_DELAYED_CAPTURE
 
-	uint8_t		tmpBuffer[2048+128];
+	uint8_t		tmpBuffer[MemoryHook::OpBufferSize];
 	uint32_t	tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpReallocAligned;
@@ -522,7 +522,7 @@ void MemoryHook::free(uint64_t _handle, void* _ptr)
 {
 	RMEM_DELAYED_CAPTURE
 
-	uint8_t		tmpBuffer[2048+128];
+	uint8_t		tmpBuffer[MemoryHook::OpBufferSize];
 	uint32_t	tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpFree;
@@ -667,10 +667,10 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 //--------------------------------------------------------------------------
 /// Writes data to an internal buffer
 //--------------------------------------------------------------------------
-void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _addStackTrace)
+void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _memoryOperation)
 {
 	uint32_t sizeTemp = (uint32_t)_size;
-	if (_addStackTrace)
+	if (_memoryOperation)
 	{
 		addStackTrace((uint8_t*)_ptr, sizeTemp);
 		_size = (size_t)sizeTemp;
