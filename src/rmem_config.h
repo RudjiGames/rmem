@@ -40,4 +40,7 @@
 /// Set to 1 to flush buffers after every file write.
 #define RMEM_FLUSH_FILE_WRITES					1
 
+/// Buffers size
+#define RMEM_BUFFER_SIZE						64 * 1024
+
 #endif // RMEM_CONFIG_H

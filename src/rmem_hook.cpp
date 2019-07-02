@@ -690,7 +690,7 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _memoryOperation)
 	m_mutexInternalBufferPtrs.unlock();
 
 	// NB: below is NOT thread safe if filling BufferSize worth of data through alloc/realloc/etc. 
-	// gets faster than writing and compressing same abount of data to disk that to disk (unlikely)
+	// gets faster than writing and compressing same abount of data to disk (unlikely)
 
 	if (writeBuffer)
 		writeToFile(writeBuffer, MemoryHook::BufferSize);
@@ -744,7 +744,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 	else
 	{
 		// no room left and file could not be opened -> no choice but to drop data :/
-		if (m_excessBufferSize + _bytesToWrite > MemoryHook::ExcessBufferSize)
+		if (m_excessBufferSize + _bytesToWrite > MemoryHook::BufferSize)
 		{
 			m_mutexWriteToFile.unlock();
 			return;
@@ -766,11 +766,11 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 //--------------------------------------------------------------------------
 /// Dump additional debug info to help resolving symbols
 //--------------------------------------------------------------------------
-extern uint32_t	getModuleInfo(uint8_t* _buffer);
+extern size_t getModuleInfo(uint8_t* _buffer);
 void MemoryHook::writeModuleInfo()
 {	
 	uint8_t buffer[32*1024];
-	uint32_t symbolDataSize = getModuleInfo(buffer);
+	uint32_t symbolDataSize = (uint32_t)getModuleInfo(buffer);
 
 	writeToBuffer(&symbolDataSize, sizeof(uint32_t));
 	writeToBuffer(buffer, symbolDataSize);

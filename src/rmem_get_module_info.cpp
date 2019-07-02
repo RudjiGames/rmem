@@ -14,7 +14,7 @@ namespace rmem {
 
 #if RMEM_PLATFORM_WINDOWS
 
-	uint32_t getModuleInfo(uint8_t* _buffer)
+	size_t getModuleInfo(uint8_t* _buffer)
 	{
 		const uint8_t charSize = 2;
 		loadModuleFuncs();
@@ -75,7 +75,7 @@ namespace rmem {
 
 #elif RMEM_PLATFORM_XBOX360
 
-	uint32_t getModuleInfo(uint8_t* _buffer)
+	size_t getModuleInfo(uint8_t* _buffer)
 	{
 		const uint8_t charSize = 2;
 
@@ -106,7 +106,7 @@ namespace rmem {
 
 #elif RMEM_PLATFORM_ANDROID
 
-	uint32_t getModuleInfo(uint8_t* _buffer)
+	size_t getModuleInfo(uint8_t* _buffer)
 	{
 		const uint8_t charSize = 1;
 
@@ -148,7 +148,7 @@ namespace rmem {
 
 #else 
 
-	uint32_t getModuleInfo(uint8_t* _buffer)
+	size_t getModuleInfo(uint8_t* _buffer)
 	{
 		(void)_buffer;
 		return 0;

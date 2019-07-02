@@ -20,8 +20,7 @@ namespace rmem {
 	{
 		public:
 			enum { OpBufferSize = 96 + (RMEM_STACK_TRACE_MAX * sizeof(uintptr_t)) };
-			enum { BufferSize = 128*1024 };
-			enum { ExcessBufferSize = 16*1024 };
+			enum { BufferSize = RMEM_BUFFER_SIZE };
 
 		private:
 			bool		m_ignoreAllocs;
@@ -29,7 +28,7 @@ namespace rmem {
 			size_t		m_bufferBytesWritten;
 			uint8_t*	m_bufferPtr;
 			uint8_t		m_bufferData[BufferSize * 2];
-			uint8_t		m_excessBuffer[ExcessBufferSize];
+			uint8_t		m_excessBuffer[BufferSize];
 #if RMEM_ENABLE_LZ4_COMPRESSION
 			uint8_t		m_bufferCompressed[BufferSize];
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
