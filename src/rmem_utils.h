@@ -53,21 +53,21 @@ namespace rmem {
 	}
 
 	template <typename T>
-	static inline void addVarToBuffer(const T& _value, uint8_t* _bufferBase, uint32_t& _bufferPtr)
+	static inline void addVarToBuffer(const T& _value, uint8_t* _bufferBase, size_t& _bufferPtr)
 	{
 		memcpy(&_bufferBase[_bufferPtr], &_value, sizeof(T));
 		_bufferPtr += sizeof(T);
 	}
 
 	/// Utility function to write data to a buffer
-	static inline void addPtrToBuffer(void* ininPtr, uint32_t ininSize, uint8_t* _bufferBase, uint32_t& _bufferPtr)
+	static inline void addPtrToBuffer(void* ininPtr, uint32_t ininSize, uint8_t* _bufferBase, size_t& _bufferPtr)
 	{
 		memcpy(&_bufferBase[_bufferPtr], ininPtr, ininSize);
 		_bufferPtr += ininSize;
 	}
 
 	/// Utility function to write a string to a buffer
-	static inline void addStrToBuffer(const char* _string, uint8_t* _bufferBase, uint32_t& _bufferPtr, uint8_t _xor = 0)
+	static inline void addStrToBuffer(const char* _string, uint8_t* _bufferBase, size_t& _bufferPtr, uint8_t _xor = 0)
 	{
 		uint32_t _len = _string ? (uint32_t)strlen(_string) : 0;
 		memcpy(&_bufferBase[_bufferPtr],&_len,sizeof(uint32_t));
@@ -81,7 +81,7 @@ namespace rmem {
 		}
 	}
 
-	static inline void addStrToBuffer(const wchar_t* _string, uint8_t* _bufferBase, uint32_t& _bufferPtr, uint8_t _xor = 0)
+	static inline void addStrToBuffer(const wchar_t* _string, uint8_t* _bufferBase, size_t& _bufferPtr, uint8_t _xor = 0)
 	{
 		uint32_t _len = _string ? (uint32_t)wcslen(_string) : 0;
 		memcpy(&_bufferBase[_bufferPtr],&_len,sizeof(uint32_t));

@@ -19,7 +19,7 @@ namespace rmem {
 		const uint8_t charSize = 2;
 		loadModuleFuncs();
 
-		uint32_t buffPtr = 0;
+		size_t buffPtr = 0;
 		addVarToBuffer(charSize, _buffer, buffPtr);
 
 		HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
@@ -82,7 +82,7 @@ namespace rmem {
 		HRESULT error;
 		PDM_WALK_MODULES pWalkMod = NULL;
 		DMN_MODLOAD modLoad;
-		uint32_t buffPtr = 0;
+		size_t buffPtr = 0;
 		addVarToBuffer(charSize, _buffer, buffPtr);
 
 		while (XBDM_NOERR == (error = DmWalkLoadedModules(&pWalkMod, &modLoad)))
@@ -114,7 +114,7 @@ namespace rmem {
 		if (!file)
 			return 0;
 
-		uint32_t buffPtr = 0;
+		size_t buffPtr = 0;
 		addVarToBuffer(charSize, _buffer, buffPtr);
 
 		char buff[512];

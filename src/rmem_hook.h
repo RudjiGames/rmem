@@ -25,7 +25,7 @@ namespace rmem {
 		private:
 			bool		m_ignoreAllocs;
 			uint8_t*	m_excessBufferPtr;
-			uint32_t	m_bufferBytesWritten;
+			size_t		m_bufferBytesWritten;
 			uint8_t*	m_bufferPtr;
 			uint8_t		m_bufferData[BufferSize * 2];
 			uint8_t		m_excessBuffer[ExcessBufferSize];
@@ -40,7 +40,7 @@ namespace rmem {
 			char		m_fileName[256];
 #endif // RMEM_PLATFORM_WINDOWS
 			FILE*		m_file;
-			uint32_t	m_excessBufferSize;
+			size_t		m_excessBufferSize;
 			int64_t		m_startTime;
 
 			enum Enum
@@ -102,16 +102,16 @@ namespace rmem {
 
 		private:
 			/// Writes out a full stack trace
-			void addStackTrace_full(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames);
+			void addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames);
 
 			/// Called on each memory operation
-			void addStackTrace(uint8_t* _tmpBuffer, uint32_t& _ioTmpBuffer);
+			void addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr);
 		
 			/// Writes data to the internal buffer
 			void writeToBuffer(void* _ptr, size_t _size, bool _addStackTrace = false);
 		
 			/// Writes data to file, used internally by writeToBuffer
-			void writeToFile(void* _ptr, uint32_t _bytesToWrite);
+			void writeToFile(void* _ptr, size_t _bytesToWrite);
 
 			/// Dump additional debug info to help resolving symbols
 			void writeModuleInfo();

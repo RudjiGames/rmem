@@ -15,9 +15,8 @@ struct EntryTags
 {
 	enum Enum
 	{
-		Exists		= 0xff,
-		Add			= 0xfe,
-		Full		= 0xef
+		Add		= 0xfe,
+		Exists	= 0xff
 	};
 };
 

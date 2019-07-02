@@ -273,7 +273,7 @@ MemoryHook::~MemoryHook()
 void MemoryHook::flush()
 {
 	memcpy(s_tempBuffer, m_bufferPtr, m_bufferBytesWritten);
-	uint32_t BytesToWrite = m_bufferBytesWritten;
+	size_t BytesToWrite = m_bufferBytesWritten;
 	m_bufferBytesWritten = 0;
 	writeToFile(s_tempBuffer, BytesToWrite);
 	if (m_file)
@@ -294,7 +294,7 @@ void MemoryHook::registerTag(const char* _name, const char* _parentName)
 	/// allocations - this would result in new data being written between
 	/// writeToBuffer calls.
 	uint8_t		tmpBuffer[512];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	uint8_t Marker = LogMarkers::RegisterTag;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
@@ -316,7 +316,7 @@ void MemoryHook::registerTag(const char* _name, const char* _parentName)
 void MemoryHook::enterTag(RMemTag& _tag)
 {
 	uint8_t		tmpBuffer[512];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	uint8_t Marker = LogMarkers::EnterTag;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
@@ -329,7 +329,7 @@ void MemoryHook::enterTag(RMemTag& _tag)
 void MemoryHook::leaveTag(RMemTag& _tag)
 {
 	uint8_t		tmpBuffer[512];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	uint8_t Marker = LogMarkers::LeaveTag;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
@@ -342,7 +342,7 @@ void MemoryHook::leaveTag(RMemTag& _tag)
 void MemoryHook::registerMarker(RMemMarker& _marker)
 {
 	uint8_t		tmpBuffer[512];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	uint8_t Marker = LogMarkers::RegisterMarker;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
@@ -356,7 +356,7 @@ void MemoryHook::registerMarker(RMemMarker& _marker)
 void MemoryHook::marker(RMemMarker& _marker)
 {
 	uint8_t		tmpBuffer[512];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	uint8_t Marker = LogMarkers::Marker;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
@@ -373,7 +373,7 @@ void MemoryHook::marker(RMemMarker& _marker)
 void MemoryHook::registerAllocator(const char* _name, uint64_t _handle)
 {
 	uint8_t		tmpBuffer[1024];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 	
 	uint8_t Marker = LogMarkers::Allocator;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
@@ -403,7 +403,7 @@ void MemoryHook::alloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t _o
 	RMEM_DELAYED_CAPTURE
 
 	uint8_t		tmpBuffer[2048+128];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpAlloc;
 	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
@@ -431,7 +431,7 @@ void MemoryHook::realloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t 
 	RMEM_DELAYED_CAPTURE
 
 	uint8_t		tmpBuffer[2048+128];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpRealloc;
 	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
@@ -461,7 +461,7 @@ void MemoryHook::allocAligned(uint64_t _handle, void* _ptr, uint32_t _size, uint
 	RMEM_DELAYED_CAPTURE
 
 	uint8_t		tmpBuffer[2048+128];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpAllocAligned;
 	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
@@ -491,7 +491,7 @@ void MemoryHook::reallocAligned(uint64_t _handle, void* _ptr, uint32_t _size, ui
 	RMEM_DELAYED_CAPTURE
 
 	uint8_t		tmpBuffer[2048+128];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpReallocAligned;
 	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
@@ -523,7 +523,7 @@ void MemoryHook::free(uint64_t _handle, void* _ptr)
 	RMEM_DELAYED_CAPTURE
 
 	uint8_t		tmpBuffer[2048+128];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	const uint8_t opMarker = LogMarkers::OpFree;
 	addVarToBuffer(opMarker, tmpBuffer, tmpBufferPtr);
@@ -547,7 +547,7 @@ void MemoryHook::free(uint64_t _handle, void* _ptr)
 void MemoryHook::registerModule(const char* _name, uint64_t inBase, uint32_t _size)
 {
 	uint8_t		tmpBuffer[1024];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	uint8_t Marker = LogMarkers::Module;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
@@ -565,7 +565,7 @@ void MemoryHook::registerModule(const char* _name, uint64_t inBase, uint32_t _si
 void MemoryHook::registerModule(const wchar_t* _name, uint64_t inBase, uint32_t _size)
 {
 	uint8_t		tmpBuffer[1024];
-	uint32_t	tmpBufferPtr = 0;
+	size_t		tmpBufferPtr = 0;
 
 	uint8_t Marker = LogMarkers::Module;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
@@ -580,9 +580,9 @@ void MemoryHook::registerModule(const wchar_t* _name, uint64_t inBase, uint32_t 
 //--------------------------------------------------------------------------
 /// Writes out a full stack trace
 //--------------------------------------------------------------------------
-void MemoryHook::addStackTrace_full(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames)
+void MemoryHook::addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames)
 {
-	uint8_t hashTag = (uint8_t)EntryTags::Full;
+	uint8_t hashTag = (uint8_t)EntryTags::Add;
 	addVarToBuffer(hashTag, _tmpBuffer, _tmpBuffPtr);
 	uint16_t numTraces = (uint16_t)_numFrames;
 	addVarToBuffer(numTraces, _tmpBuffer, _tmpBuffPtr);
@@ -592,7 +592,7 @@ void MemoryHook::addStackTrace_full(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr, 
 //--------------------------------------------------------------------------
 /// Called on each memory operation
 //--------------------------------------------------------------------------
-void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
+void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr)
 {
 	uintptr_t backTrace[RMEM_STACK_TRACE_MAX];
 
@@ -602,15 +602,6 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 
 	const uint32_t stackHash = (uint32_t)hashStackTrace(backTrace, numTraces);
 	const uint32_t stackIndex = stackHash & HashArrayMask;
-
-#if	!RMEM_STACK_TRACE_HASHING_PARANOIA
-	if (stackHash == 0)
-	{
-		/// write full stack
-		addStackTrace_full(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
-		return;
-	}
-#endif // !RMEM_STACK_TRACE_HASHING_PARANOIA
 
 	if (m_stackTraceHashes[stackIndex] == stackHash)
 	{
@@ -624,7 +615,7 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 		if (i != numTraces) // same hash, different stack trace
 		{
 			/// write full stack
-			addStackTrace_full(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
 			return;
 		}
 #endif // RMEM_STACK_TRACE_HASHING_PARANOIA
@@ -639,12 +630,7 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 		if (m_stackTraceHashes[stackIndex] == 0)
 		{
 			/// write stack strace
-			uint8_t hashTag = (uint8_t)EntryTags::Add;
-			addVarToBuffer(hashTag, _tmpBuffer, _tmpBuffPtr);
-			uint16_t numTraces16 = (uint16_t)numTraces;
-			addVarToBuffer(numTraces16, _tmpBuffer, _tmpBuffPtr);
-			addPtrToBuffer(backTrace, sizeof(uintptr_t)*numTraces, _tmpBuffer, _tmpBuffPtr);
-
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
 			m_stackTraceHashes[stackIndex] = stackHash;
 
 #if	RMEM_STACK_TRACE_HASHING_PARANOIA
@@ -657,7 +643,7 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 		{
 			/// different hash - write full stack
 #endif // RMEM_STACK_TRACE_ENABLE_HASHING
-			addStackTrace_full(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
 #if	RMEM_STACK_TRACE_ENABLE_HASHING
 		}
 	}
@@ -669,12 +655,8 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, uint32_t& _tmpBuffPtr)
 //--------------------------------------------------------------------------
 void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _addStackTrace)
 {
-	uint32_t sizeTemp = (uint32_t)_size;
 	if (_addStackTrace)
-	{
-		addStackTrace((uint8_t*)_ptr, sizeTemp);
-		_size = (size_t)sizeTemp;
-	}
+		addStackTrace((uint8_t*)_ptr, _size);
 
 	const uint32_t size = (uint32_t)_size;
 
@@ -694,7 +676,7 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _addStackTrace)
 	else
 	{
 		// fill the rest of the buffer
-		uint32_t BytesToCopy = MemoryHook::BufferSize - m_bufferBytesWritten;
+		size_t BytesToCopy = MemoryHook::BufferSize - m_bufferBytesWritten;
 		memcpy(&m_bufferPtr[m_bufferBytesWritten], _ptr, BytesToCopy);
 
 		writeBuffer = doubleBuffer();
@@ -717,7 +699,7 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _addStackTrace)
 //--------------------------------------------------------------------------
 /// Writes data to file, used internally by writeToBuffer
 //--------------------------------------------------------------------------
-void MemoryHook::writeToFile(void* _ptr, uint32_t _bytesToWrite)
+void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 {
 #if RMEM_ENABLE_LZ4_COMPRESSION
 	static const uint32_t compressedSig = 0x23234646;
@@ -739,7 +721,7 @@ void MemoryHook::writeToFile(void* _ptr, uint32_t _bytesToWrite)
 		if (m_excessBufferPtr)
 		{
 #if RMEM_ENABLE_LZ4_COMPRESSION
-			uint32_t compSize = LZ4_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, m_excessBufferSize, MemoryHook::BufferSize);
+			uint32_t compSize = LZ4_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
 			fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 			fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 			fwrite(m_bufferCompressed, compSize, 1, m_file);
@@ -751,7 +733,7 @@ void MemoryHook::writeToFile(void* _ptr, uint32_t _bytesToWrite)
 		}
 
 #if RMEM_ENABLE_LZ4_COMPRESSION
-		uint32_t compSize = LZ4_compress_default((const char*)_ptr, (char*)m_bufferCompressed, _bytesToWrite, MemoryHook::BufferSize);
+		uint32_t compSize = LZ4_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, MemoryHook::BufferSize);
 		fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 		fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 		fwrite(m_bufferCompressed, compSize, 1, m_file);
