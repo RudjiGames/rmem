@@ -95,11 +95,9 @@ MemoryHook::MemoryHook(void* _data)
 	for (uint32_t i=0; i<HashArraySize; ++i)
 		m_stackTraceHashes[i] = 0;
 
-#if	RMEM_STACK_TRACE_HASHING_PARANOIA
 	for (uint32_t i=0; i<HashArraySize; ++i)
 		for (uint32_t j=0; j<RMEM_STACK_TRACE_MAX; ++j)
 			m_stackTraces[i][j] = 0;
-#endif // RMEM_STACK_TRACE_HASHING_PARANOIA
 
 	m_file					= NULL;
 	m_bufferBytesWritten	= 0;
@@ -605,20 +603,18 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr)
 
 	if (m_stackTraceHashes[stackIndex] == stackHash)
 	{
-#if	RMEM_STACK_TRACE_HASHING_PARANOIA
 		/// check for hash collision
 		uint32_t i;
 		for (i=0; i<numTraces; ++i)
 			if (m_stackTraces[stackIndex][i] != backTrace[i])
 				break;
 
-		if (i != numTraces) // same hash, different stack trace
+		if (i != numTraces)
 		{
-			/// write full stack
+			/// same hash, different stack trace - write full stack
 			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
 			return;
 		}
-#endif // RMEM_STACK_TRACE_HASHING_PARANOIA
 
 		/// write the existing hash
 		uint8_t hashTag = (uint8_t)EntryTags::Exists;
@@ -633,11 +629,9 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr)
 			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
 			m_stackTraceHashes[stackIndex] = stackHash;
 
-#if	RMEM_STACK_TRACE_HASHING_PARANOIA
 			// ...and save it for comparing later
 			for (uint32_t i=0; i<numTraces; ++i)
 				m_stackTraces[stackIndex][i] = backTrace[i];
-#endif // !RMEM_STACK_TRACE_HASHING_PARANOIA
 		}
 		else
 		{

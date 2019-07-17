@@ -50,9 +50,7 @@ namespace rmem {
 			};
 			uint32_t	m_stackTraceHashes[MemoryHook::HashArraySize];
 
-#if	RMEM_STACK_TRACE_HASHING_PARANOIA
 			uintptr_t	m_stackTraces[MemoryHook::HashArraySize][RMEM_STACK_TRACE_MAX];
-#endif // RMEM_STACK_TRACE_HASHING_PARANOIA
 
 		public:
 			MemoryHook(void* _data);

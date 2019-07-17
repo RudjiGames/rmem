@@ -10,10 +10,6 @@
 /// saved stack traces and storing their hash instead
 #define RMEM_STACK_TRACE_ENABLE_HASHING			1
 
-/// If enabled, keeps stack traces along with their hashes for the purpose
-/// of solving possible hash collisions. Reduces performance!
-#define RMEM_STACK_TRACE_HASHING_PARANOIA		0
-
 /// Size of the stack trace hash table, smaller hash table size reduces memory
 /// overhead of profiling but increases likelihood of collisions.
 #define RMEM_STACK_TRACE_HASH_TABLE_SIZE		256*1024
