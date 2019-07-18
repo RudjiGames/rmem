@@ -28,8 +28,8 @@ static void* loadFunc(HMODULE _kernel, HMODULE _psapi, const char* _name)
 
 static bool loadModuleFuncs()
 {
-	HMODULE kerneldll32 = ::GetModuleHandleA("kernel32");
-	HMODULE psapiDLL = ::LoadLibraryA("Psapi.dll");
+	HMODULE kerneldll32	= ::GetModuleHandleA("kernel32");
+	HMODULE psapiDLL	= ::LoadLibraryA("Psapi.dll");
 
 	sFn_getModuleInformation	= reinterpret_cast<fnGetModuleInformation>(loadFunc(kerneldll32, psapiDLL, "GetModuleInformation"));
 	sFn_enumProcessModules		= reinterpret_cast<fnEnumProcessModules>  (loadFunc(kerneldll32, psapiDLL, "EnumProcessModules"));
@@ -41,4 +41,3 @@ static bool loadModuleFuncs()
 }
 
 #endif // RMEM_PLATFORM_WINDOWS
-

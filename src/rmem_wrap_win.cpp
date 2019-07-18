@@ -202,7 +202,7 @@ extern "C"
 			MH_Uninitialize();
 	}
 
-	void rmemHookAllocs(int _isLinkerBased)
+	void rmemHookAllocs(int _isLinkerBased, int _allocatorID)
 	{
 		HMODULE hntdll32	= ::GetModuleHandleA("ntdll");
 		HMODULE kerneldll32	= ::GetModuleHandleA("kernel32");

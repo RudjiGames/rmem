@@ -37,7 +37,7 @@ extern "C"
 {
 	void rmemUnhookAllocs();
 
-	void rmemHookAllocs(int _isLinkerBased)
+	void rmemHookAllocs(int _isLinkerBased, int _allocatorID)
 	{
 		XMemSetAllocationHooks(	&detour_XMEMALLOC_ROUTINE,
 								&detour_XMEMFREE_ROUTINE );

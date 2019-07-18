@@ -23,7 +23,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-	void rmemHookAllocs(int);
+	void rmemHookAllocs(int, int);
 	void rmemUnhookAllocs();
 #ifdef __cplusplus
 }
@@ -102,7 +102,7 @@ extern "C" {
 		RMEM_EXTERN_C_BEGIN																									\
 		void __attribute__ ((constructor(101))) memwrap_init(void)															\
 		{																													\
-			rmemHookAllocs(1);																								\
+			rmemHookAllocs(1, 0);																							\
 		}																													\
 																															\
 		void __attribute__ ((destructor(1001))) memwrap_shutdown(void)														\
@@ -327,7 +327,7 @@ extern "C" {
 	#define RMEM_ENTRY_CONSOLE			\
 		void rmemEntry()				\
 		{								\
-			rmemHookAllocs(1);			\
+			rmemHookAllocs(1, 0);		\
 			mainCRTStartup();			\
 		}
 
@@ -335,7 +335,7 @@ extern "C" {
 	#define RMEM_ENTRY_WINDOWED 		\
 		void rmemEntry()				\
 		{								\
-			rmemHookAllocs(1);			\
+			rmemHookAllocs(1, 0);		\
 			WinMainCRTStartup();		\
 		}
 
@@ -353,7 +353,7 @@ extern "C" {
 	#define RMEM_ENTRY_CONSOLE			\
 		void rmemEntry()				\
 		{								\
-			rmemHookAllocs(1);			\
+			rmemHookAllocs(1, 0);		\
 			mainCRTStartup();			\
 			atexit(rmemUnhookAllocs);	\
 		}
