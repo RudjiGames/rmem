@@ -186,14 +186,15 @@ extern "C" {
 	void rmemAddModuleC(const char* _name, uint64_t _base, uint32_t _size)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		if (hook)	// Needed due to MemoryHook constructor using Shell32.DLL
+		if (hook)
 			hook->registerModule(_name, _base, _size);
 	}
 
 	void rmemAddModuleW(const wchar_t* _name, uint64_t _base, uint32_t _size)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		hook->registerModule(_name, _base, _size);
+		if (hook)
+			hook->registerModule(_name, _base, _size);
 	}
 
 } // extern "C"

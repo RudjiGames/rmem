@@ -28,6 +28,9 @@ static void* loadFunc(HMODULE _kernel, HMODULE _psapi, const char* _name)
 
 static bool loadModuleFuncs()
 {
+	if (sFn_getModuleInformation)
+		return true;
+
 	HMODULE kerneldll32	= ::GetModuleHandleA("kernel32");
 	HMODULE psapiDLL	= ::LoadLibraryA("Psapi.dll");
 

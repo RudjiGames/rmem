@@ -21,43 +21,50 @@
 /*--------------------------------------------------------------------------
  * Platforms
  *------------------------------------------------------------------------*/
-#define RMEM_PLATFORM_WINDOWS	0
-#define RMEM_PLATFORM_LINUX		0
-#define RMEM_PLATFORM_IOS		0
-#define RMEM_PLATFORM_OSX		0
-#define RMEM_PLATFORM_PS3		0
-#define RMEM_PLATFORM_PS4		0
-#define RMEM_PLATFORM_ANDROID	0
-#define RMEM_PLATFORM_XBOX360	0
-#define RMEM_PLATFORM_XBOXONE	0
+#define RMEM_PLATFORM_WINDOWS		0
+#define RMEM_PLATFORM_LINUX			0
+#define RMEM_PLATFORM_IOS			0
+#define RMEM_PLATFORM_OSX			0
+#define RMEM_PLATFORM_PS3			0
+#define RMEM_PLATFORM_PS4			0
+#define RMEM_PLATFORM_ANDROID		0
+#define RMEM_PLATFORM_XBOX360		0
+#define RMEM_PLATFORM_XBOXONE		0
 
 /*--------------------------------------------------------------------------
  * Compilers
  *------------------------------------------------------------------------*/
-#define RMEM_COMPILER_MSVC		0
-#define RMEM_COMPILER_GCC		0
-#define RMEM_COMPILER_CLANG		0
-#define RMEM_COMPILER_SNC		0
+#define RMEM_COMPILER_MSVC			0
+#define RMEM_COMPILER_GCC			0
+#define RMEM_COMPILER_CLANG			0
+#define RMEM_COMPILER_SNC			0
 
 /*--------------------------------------------------------------------------
  * CPUs
  *------------------------------------------------------------------------*/
-#define RMEM_CPU_X86			0
-#define RMEM_CPU_PPC			0
-#define RMEM_CPU_ARM			0
-#define RMEM_CPU_MIPS			0
+#define RMEM_CPU_X86				0
+#define RMEM_CPU_PPC				0
+#define RMEM_CPU_ARM				0
+#define RMEM_CPU_MIPS				0
 
 /*--------------------------------------------------------------------------
  * Endianess
  *------------------------------------------------------------------------*/
-#define RMEM_LITTLE_ENDIAN		0
-#define RMEM_BIG_ENDIAN			0
+#define RMEM_LITTLE_ENDIAN			0
+#define RMEM_BIG_ENDIAN				0
 
 /*--------------------------------------------------------------------------
  * Word size
  *------------------------------------------------------------------------*/
-#define RMEM_32BIT				0
-#define RMEM_64BIT				0
+#define RMEM_32BIT					0
+#define RMEM_64BIT					0
+
+/*--------------------------------------------------------------------------
+ * Allocators
+ *------------------------------------------------------------------------*/
+#define RMEM_ALLOCATOR_DEFAULT		0
+#define RMEM_ALLOCATOR_RPMALLOC		1
+#define RMEM_ALLOCATOR_NOPROFILING	0x80000000	/* added as OR mask to allocator IDto skip profiling */
 
 /*--------------------------------------------------------------------------
  * Detect compiler
