@@ -211,7 +211,9 @@ HMODULE WINAPI detour_LoadLibraryA(LPCSTR _fileName)
 		char fullPath[1024];
 		if (0 == GetModuleFileNameA(ret, fullPath, 1024))
 			return ret;
-		rmemAddModuleC(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+
+		if (g_shouldProfile)
+			rmemAddModuleC(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
 	}
 	return ret;
 }
@@ -227,7 +229,9 @@ HMODULE WINAPI detour_LoadLibraryW(LPCWSTR _fileName)
 		wchar_t fullPath[1024];
 		if (0 == GetModuleFileNameW(ret, fullPath, 1024))
 			return ret;
-		rmemAddModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+
+		if (g_shouldProfile)
+			rmemAddModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
 	}
 	return ret;
 }
@@ -243,7 +247,9 @@ HMODULE WINAPI detour_LoadLibraryExA(LPCSTR _fileName, HANDLE _file, DWORD _flag
 		char fullPath[1024];
 		if (0 == GetModuleFileNameA(ret, fullPath, 1024))
 			return ret;
-		rmemAddModuleC(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+
+		if (g_shouldProfile)
+			rmemAddModuleC(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
 	}
 	return ret;
 }
@@ -259,7 +265,9 @@ HMODULE WINAPI detour_LoadLibraryExW(LPCWSTR _fileName, HANDLE _file, DWORD _fla
 		wchar_t fullPath[1024];
 		if (0 == GetModuleFileNameW(ret, fullPath, 1024))
 			return ret;
-		rmemAddModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+
+		if (g_shouldProfile)
+			rmemAddModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
 	}
 	return ret;
 }

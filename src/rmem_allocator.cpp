@@ -9,12 +9,13 @@
 #include <new>	// placement new
 #include "rpmalloc/rpmalloc.h"
 
-#define ALLOCATOR_DECLARE(_name)	static char buff_##_name[sizeof(_name)]
-#define ALLOCATOR_CONSTRUCT(_name)	new (buff_##_name) _name
-#define ALLOCATOR_GETPTR(_name)		(_name*)buff_##_name
+#define RMEM_ALLOCATOR_DECLARE(_name)	static char buff_##_name[sizeof(_name)]
+#define RMEM_ALLOCATOR_CONSTRUCT(_name)	new (buff_##_name) _name
+#define RMEM_ALLOCATOR_GETPTR(_name)	(_name*)buff_##_name
 
 namespace rmem {
 
+#if RMEM_PLATFORM_WINDOWS
 struct allocator_rpmalloc : public Allocator
 {
 	int		init()								{ int ret = rpmalloc_initialize(); return ret; }
@@ -25,18 +26,22 @@ struct allocator_rpmalloc : public Allocator
 	void	free(void* _ptr)					{ rpfree(_ptr); }
 	void*	realloc(void* _ptr, size_t _size)	{ return rprealloc(_ptr, _size); }
 };
+#endif // RMEM_PLATFORM_WINDOWS
 
 Allocator* Allocator::getAllocator(int _allocator)
 {
-	ALLOCATOR_DECLARE(allocator_rpmalloc);
-	ALLOCATOR_CONSTRUCT(allocator_rpmalloc);
+	RMEM_ALLOCATOR_DECLARE(allocator_rpmalloc);
+	RMEM_ALLOCATOR_CONSTRUCT(allocator_rpmalloc);
 
 	switch (_allocator & ~RMEM_ALLOCATOR_NOPROFILING)
 	{
-	case RMEM_ALLOCATOR_RPMALLOC:	return ALLOCATOR_GETPTR(allocator_rpmalloc);
-	};
+#if RMEM_PLATFORM_WINDOWS
+	case RMEM_ALLOCATOR_RPMALLOC:	return RMEM_ALLOCATOR_GETPTR(allocator_rpmalloc);
+#endif
 
-	return 0;
+	default:
+		return 0;
+	};
 }
 
 } // namespace rmem

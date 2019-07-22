@@ -9,6 +9,9 @@
  *
  */
 
+#include "../rmem_platform.h"
+#if RMEM_PLATFORM_WINDOWS
+
 #include "rpmalloc.h"
 
 /// Build time configurable limits
@@ -2194,3 +2197,5 @@ rpmalloc_global_statistics(rpmalloc_global_statistics_t* stats) {
 	}
 #endif
 }
+
+#endif // RMEM_PLATFORM_WINDOWS

@@ -11,6 +11,9 @@
 
 #pragma once
 
+#include "../rmem_platform.h"
+#if RMEM_PLATFORM_WINDOWS
+
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -190,3 +193,5 @@ rpmalloc_usable_size(void* ptr);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // RMEM_PLATFORM_WINDOWS
