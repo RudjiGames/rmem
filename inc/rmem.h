@@ -64,7 +64,7 @@
  *------------------------------------------------------------------------*/
 #define RMEM_ALLOCATOR_DEFAULT		0
 #define RMEM_ALLOCATOR_RPMALLOC		1
-#define RMEM_ALLOCATOR_NOPROFILING	0x80000000	/* added as OR mask to allocator IDto skip profiling */
+#define RMEM_ALLOCATOR_NOPROFILING	0x8000		/* added as OR mask to allocator IDto skip profiling */
 
 /*--------------------------------------------------------------------------
  * Detect compiler
