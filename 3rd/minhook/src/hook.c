@@ -551,7 +551,7 @@ MH_STATUS WINAPI MH_CreateHook(LPVOID pTarget, LPVOID pDetour, LPVOID *ppOrigina
 
     if (g_hHeap != NULL)
     {
-        if (IsExecutableAddress(pTarget))// && IsExecutableAddress(pDetour))
+        if (IsExecutableAddress(pTarget) && IsExecutableAddress(pDetour))
         {
             UINT pos = FindHookEntry(pTarget);
             if (pos == INVALID_HOOK_POS)
