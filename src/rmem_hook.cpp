@@ -67,6 +67,10 @@ static CHAR* sGetTimeString(CHAR _buff[256])
 
 namespace rmem {
 
+#if defined(_MSC_VER) && defined(_X86_)
+#pragma optimize("y", off)
+#endif
+
 /// Once the buffer is full we will write it to the file.
 /// The problem is that writing to a file will likely perform more
 /// allocations which will, in turn, call this function again thus
@@ -392,7 +396,6 @@ static inline bool rmemIsCaptureEnabled(bool) { return true; }
 	if (!rmemIsCaptureEnabled(false)) return;	\
 	if (m_ignoreAllocs) return;
 
-
 //--------------------------------------------------------------------------
 /// Called for each allocation
 //--------------------------------------------------------------------------
@@ -652,8 +655,6 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _memoryOperation)
 	if (_memoryOperation)
 		addStackTrace((uint8_t*)_ptr, _size);
 
-	const uint32_t size = (uint32_t)_size;
-
 	m_mutexInternalBufferPtrs.lock();
 
 	uint8_t* writeBuffer = 0;
@@ -665,7 +666,7 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _memoryOperation)
 		if (_size + m_bufferBytesWritten == MemoryHook::BufferSize)
 			writeBuffer = doubleBuffer();
 		else
-			m_bufferBytesWritten += size;
+			m_bufferBytesWritten += _size;
 	}
 	else
 	{
@@ -783,5 +784,9 @@ uint8_t* MemoryHook::doubleBuffer()
 
 	return ret;
 }
+
+#if defined(_MSC_VER) && defined(_X86_)
+#pragma optimize("y", on)
+#endif
 
 } // namespace rmem
