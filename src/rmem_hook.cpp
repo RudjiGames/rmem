@@ -67,10 +67,6 @@ static CHAR* sGetTimeString(CHAR _buff[256])
 
 namespace rmem {
 
-#if defined(_MSC_VER) && defined(_X86_)
-#pragma optimize("y", off)
-#endif
-
 /// Once the buffer is full we will write it to the file.
 /// The problem is that writing to a file will likely perform more
 /// allocations which will, in turn, call this function again thus
@@ -784,9 +780,5 @@ uint8_t* MemoryHook::doubleBuffer()
 
 	return ret;
 }
-
-#if defined(_MSC_VER) && defined(_X86_)
-#pragma optimize("y", on)
-#endif
 
 } // namespace rmem

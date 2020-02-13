@@ -6,7 +6,6 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 
 #include "rmem_platform.h"
-#include "rmem_allocator.h"
 
 #if RMEM_PLATFORM_WINDOWS
 
@@ -45,7 +44,6 @@ typedef HMODULE	(WINAPI *fn_LoadLibraryA)(LPCSTR _fileName);
 typedef HMODULE	(WINAPI *fn_LoadLibraryW)(LPCWSTR _fileName);
 typedef HMODULE	(WINAPI *fn_LoadLibraryExA)(LPCSTR _fileName, HANDLE _file, DWORD _flags);
 typedef HMODULE	(WINAPI *fn_LoadLibraryExW)(LPCWSTR _fileName, HANDLE _file, DWORD _flags);
-typedef HANDLE	(WINAPI *fn_CreateThread)(LPSECURITY_ATTRIBUTES lpTthreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId);
 typedef void	(WINAPI *fn_exit)(int _code);
 
 #define FN_ORIGINAL(name)			\
@@ -71,7 +69,6 @@ FN_ORIGINAL(LoadLibraryA)
 FN_ORIGINAL(LoadLibraryW)
 FN_ORIGINAL(LoadLibraryExA)
 FN_ORIGINAL(LoadLibraryExW)
-FN_ORIGINAL(CreateThread)
 FN_ORIGINAL(exit)
 
 struct ThreadInitializer
@@ -82,35 +79,9 @@ struct ThreadInitializer
 
 static const int			g_threadInitializerSize		= 64;
 static int					g_threadInitializerIndex	= 0;
-static rmem::Allocator*		g_allocator					= 0;
 static bool					g_ignoreAll					= false;
 static bool					g_shouldProfile				= true;
 static ThreadInitializer	g_threadInitializers[g_threadInitializerSize];
-
-DWORD WINAPI threadEntryAllocatorDetour(void* _param)
-{
-	ThreadInitializer* init = (ThreadInitializer*)_param;
-	if (g_allocator)
-		g_allocator->initThread();
-
-	DWORD result = init->m_originalRoutine(init->m_param);
-
-	if (g_allocator)
-		g_allocator->shutDownThread();
-
-	return result;
-}
-
-HANDLE WINAPI detour_CreateThread(LPSECURITY_ATTRIBUTES lpTthreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId)
-{
-	ThreadInitializer* init = &g_threadInitializers[g_threadInitializerIndex++];
-	g_threadInitializerIndex = g_threadInitializerIndex % g_threadInitializerSize;
-
-	init->m_originalRoutine = lpStartAddress;
-	init->m_param = lpParameter;
-
-	return (CALL_ORIGINAL(CreateThread)(lpTthreadAttributes, dwStackSize, threadEntryAllocatorDetour, init, dwCreationFlags, lpThreadId));
-}
 
 extern HANDLE g_hHeap;
 
@@ -138,12 +109,7 @@ PVOID WINAPI detour_RtlAllocateHeap(PVOID _heap, ULONG _flags, SIZE_T _size)
 {
 	if (g_ignoreAll) return 0;
 
-	void* ret = 0;
-
-	if (g_allocator && (_heap != g_hHeap))
-		ret = g_allocator->malloc(_size);
-	else
-		ret = (CALL_ORIGINAL(RtlAllocateHeap)(_heap, _flags, _size));
+	void* ret = (CALL_ORIGINAL(RtlAllocateHeap)(_heap, _flags, _size));
 
 	if (g_shouldProfile)
 	{
@@ -167,24 +133,14 @@ BOOLEAN WINAPI detour_RtlFreeHeap(PVOID _heap, ULONG _flags, PVOID _ptr)
 			rmemFree((uint64_t)_heap, _ptr);
 	}
 
-	if (g_allocator && (_heap != g_hHeap))
-	{
-		g_allocator->free(_ptr);
-		return TRUE;
-	}
-	else
-		return (CALL_ORIGINAL(RtlFreeHeap)(_heap, _flags, _ptr));
+	return (CALL_ORIGINAL(RtlFreeHeap)(_heap, _flags, _ptr));
 }
 
 LPVOID WINAPI detour_RtlReAllocateHeap(HANDLE _heap, DWORD _flags, LPVOID _ptr, SIZE_T _size)
 {
 	if (g_ignoreAll) return 0;
 
-	void* ret = 0;
-	if (g_allocator && (_heap != g_hHeap))
-		ret = g_allocator->realloc(_ptr, _size);
-	else
-		ret = (CALL_ORIGINAL(RtlReAllocateHeap)(_heap, _flags, _ptr, _size));
+	void* ret = (CALL_ORIGINAL(RtlReAllocateHeap)(_heap, _flags, _ptr, _size));
 	
 	if (g_shouldProfile)
 	{
@@ -283,21 +239,12 @@ extern "C"
 	{
 		rmemUnhookAllocs();
 
-		if (!g_allocator)
-			(CALL_ORIGINAL(exit)(_code));
-		else
-			g_ignoreAll = true;
+		(CALL_ORIGINAL(exit)(_code));
 
 		MH_RemoveHook((void*)&exit);
 
-		if (g_linkerBased && !g_allocator)
+		if (g_linkerBased)
 			MH_Uninitialize();
-
-		if (!g_linkerBased && g_allocator)
-		{
-			g_allocator->shutDown();
-			g_allocator = 0;
-		}
 	}
 
 	void rmemHookAllocs(int _isLinkerBased, int _allocatorID)
@@ -308,10 +255,6 @@ extern "C"
 		HMODULE kerneldll32	= ::GetModuleHandleA("kernel32");
 
 		loadModuleFuncs();
-
-		g_allocator = rmem::Allocator::getAllocator(_allocatorID);
-		if (g_allocator)
-			g_allocator->init();
 
 		g_shouldProfile = RMEM_ALLOCATOR_NOPROFILING & _allocatorID ? false : true;
 
@@ -337,14 +280,10 @@ extern "C"
 		CREATE_HOOK(hntdll32, RtlAllocateHeap);
 		CREATE_HOOK(hntdll32, RtlReAllocateHeap);
 
-		if (g_allocator)
-			CREATE_HOOK(hntdll32, RtlValidateHeap);
-
 		CREATE_HOOK(kerneldll32, LoadLibraryA);
 		CREATE_HOOK(kerneldll32, LoadLibraryW);
 		CREATE_HOOK(kerneldll32, LoadLibraryExA);
 		CREATE_HOOK(kerneldll32, LoadLibraryExW);
-		CREATE_HOOK(kerneldll32, CreateThread);
 
 		if (_isLinkerBased)
 		{
@@ -367,7 +306,7 @@ extern "C"
 		rmemShutDown();
 
 		// if we had a custom allocator, keep hooks
-		if (!g_allocator && g_linkerBased)
+		if (g_linkerBased)
 		{
 			REMOVE_HOOK(hntdll32, RtlFreeHeap);
 			REMOVE_HOOK(hntdll32, RtlAllocateHeap);

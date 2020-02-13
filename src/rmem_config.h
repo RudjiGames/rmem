@@ -39,4 +39,8 @@
 /// Buffers size
 #define RMEM_BUFFER_SIZE						64 * 1024
 
+#if defined(_MSC_VER) && defined(_X86_)
+#pragma optimize("y", off)
+#endif
+
 #endif // RMEM_CONFIG_H
