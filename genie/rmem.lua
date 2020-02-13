@@ -42,3 +42,10 @@ end
 function projectAdd_rmem() 
 	addProject_lib("rmem")
 end
+
+function projectExtraConfig_rmem()
+    configuration { "vs20* or mingw*", "not orbis", "not durango", "not winphone*", "not winstore*" }
+ 		removeflags {
+			"NoFramePointer"
+        }
+end
