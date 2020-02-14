@@ -21,25 +21,6 @@
 #define RMEM_ALIGNTO(val, a)	((val+a) & ~(a-1))
 
 //--------------------------------------------------------------------------
-/// Inlining macros
-//--------------------------------------------------------------------------
-#if RMEM_COMPILER_MSVC
-#define TFORCEINLINE	__forceinline
-#elif RMEM_COMPILER_GCC || RMEM_COMPILER_CLANG || RMEM_COMPILER_SNC
-#define TFORCEINLINE	__attribute__((always_inline))
-#else
-#error "Unsupported compiler!"
-#endif
-
-#if RMEM_COMPILER_MSVC
-#define TNOINLINE	__declspec(noinline)
-#elif RMEM_COMPILER_GCC || RMEM_COMPILER_CLANG || RMEM_COMPILER_SNC
-#define TNOINLINE	__attribute__((no_inline))
-#else
-#error "Unsupported compiler!"
-#endif
-
-//--------------------------------------------------------------------------
 /// Platform specific headers
 //--------------------------------------------------------------------------
 #if RMEM_PLATFORM_XBOXONE
