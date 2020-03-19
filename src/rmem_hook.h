@@ -103,7 +103,10 @@ namespace rmem {
 			void addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames);
 
 			/// Called on each memory operation
-			void addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr);
+			uint32_t addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr);
+
+			/// Called after the stack trace has been written
+			void finalizeStackTrace(const uint32_t stackHash);
 		
 			/// Writes data to the internal buffer
 			void writeToBuffer(void* _ptr, size_t _size, bool _memoryOperation = false);
