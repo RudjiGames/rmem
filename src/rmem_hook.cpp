@@ -417,7 +417,10 @@ void MemoryHook::alloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t _o
 	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_overhead, tmpBuffer, tmpBufferPtr);
-	writeToBuffer(tmpBuffer, tmpBufferPtr, true);
+
+	uintptr_t backTrace[RMEM_STACK_TRACE_MAX];
+	uint32_t numTraces = getStackTrace(backTrace, RMEM_STACK_TRACE_MAX, 0);
+	writeToBuffer(tmpBuffer, tmpBufferPtr, backTrace, numTraces);
 }
 
 //--------------------------------------------------------------------------
@@ -447,7 +450,10 @@ void MemoryHook::realloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t 
 	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_overhead, tmpBuffer, tmpBufferPtr);
-	writeToBuffer(tmpBuffer, tmpBufferPtr, true);
+
+	uintptr_t backTrace[RMEM_STACK_TRACE_MAX];
+	uint32_t numTraces = getStackTrace(backTrace, RMEM_STACK_TRACE_MAX, 0);
+	writeToBuffer(tmpBuffer, tmpBufferPtr, backTrace, numTraces);
 }
 
 //--------------------------------------------------------------------------
@@ -477,7 +483,10 @@ void MemoryHook::allocAligned(uint64_t _handle, void* _ptr, uint32_t _size, uint
 	addVarToBuffer((uint8_t)bitIndex, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_overhead, tmpBuffer, tmpBufferPtr);
-	writeToBuffer(tmpBuffer, tmpBufferPtr, true);
+
+	uintptr_t backTrace[RMEM_STACK_TRACE_MAX];
+	uint32_t numTraces = getStackTrace(backTrace, RMEM_STACK_TRACE_MAX, 0);
+	writeToBuffer(tmpBuffer, tmpBufferPtr, backTrace, numTraces);
 }
 
 //--------------------------------------------------------------------------
@@ -509,7 +518,10 @@ void MemoryHook::reallocAligned(uint64_t _handle, void* _ptr, uint32_t _size, ui
 	addVarToBuffer((uint8_t)bitIndex, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_overhead, tmpBuffer, tmpBufferPtr);
-	writeToBuffer(tmpBuffer, tmpBufferPtr, true);
+
+	uintptr_t backTrace[RMEM_STACK_TRACE_MAX];
+	uint32_t numTraces = getStackTrace(backTrace, RMEM_STACK_TRACE_MAX, 0);
+	writeToBuffer(tmpBuffer, tmpBufferPtr, backTrace, numTraces);
 }
 
 //--------------------------------------------------------------------------
@@ -535,7 +547,10 @@ void MemoryHook::free(uint64_t _handle, void* _ptr)
 
 	const int64_t clock = getCPUClock() - m_startTime;
 	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
-	writeToBuffer(tmpBuffer, tmpBufferPtr, true);
+
+	uintptr_t backTrace[RMEM_STACK_TRACE_MAX];
+	uint32_t numTraces = getStackTrace(backTrace, RMEM_STACK_TRACE_MAX, 0);
+	writeToBuffer(tmpBuffer, tmpBufferPtr, backTrace, numTraces);
 }
 
 //--------------------------------------------------------------------------
@@ -586,93 +601,71 @@ void MemoryHook::addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uin
 	addPtrToBuffer(_stackTrace, sizeof(uintptr_t)*_numFrames, _tmpBuffer, _tmpBuffPtr);
 }
 
-#define PLACEHOLDER_HASH 0xffffffff
 //--------------------------------------------------------------------------
 /// Called on each memory operation
 //--------------------------------------------------------------------------
-uint32_t MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr)
+void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames, uint32_t _stackHash)
 {
-	uintptr_t backTrace[RMEM_STACK_TRACE_MAX];
-
-	uint32_t numTraces = getStackTrace(backTrace, RMEM_STACK_TRACE_MAX, 0);
-
 #if	RMEM_STACK_TRACE_ENABLE_HASHING
 
-	const uint32_t stackHash = (uint32_t)hashStackTrace(backTrace, numTraces);
-	const uint32_t stackIndex = stackHash & HashArrayMask;
+	const uint32_t stackIndex = _stackHash & HashArrayMask;
 
-	if (m_stackTraceHashes[stackIndex] == stackHash)
+	if (m_stackTraceHashes[stackIndex] == _stackHash)
 	{
 		/// check for hash collision
 		uint32_t i;
-		for (i=0; i<numTraces; ++i)
-			if (m_stackTraces[stackIndex][i] != backTrace[i])
+		for (i=0; i<_numFrames; ++i)
+			if (m_stackTraces[stackIndex][i] != _stackTrace[i])
 				break;
 
-		if (i != numTraces)
+		if (i != _numFrames)
 		{
-			/// same hash, different stack trace - write full stack
-			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
-			return 0;
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
+			return;
 		}
 
 		/// write the existing hash
 		uint8_t hashTag = (uint8_t)EntryTags::Exists;
 		addVarToBuffer(hashTag, _tmpBuffer, _tmpBuffPtr);
-		addVarToBuffer(stackHash, _tmpBuffer, _tmpBuffPtr);
+		addVarToBuffer(_stackHash, _tmpBuffer, _tmpBuffPtr);
 	}
 	else
 	{
 		if (m_stackTraceHashes[stackIndex] == 0)
 		{
-			m_stackTraceHashes[stackIndex] = PLACEHOLDER_HASH;
+			m_stackTraceHashes[stackIndex] = _stackHash;
 			/// write stack strace
-			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
 
 			// ...and save it for comparing later
-			for (uint32_t i=0; i<numTraces; ++i)
-				m_stackTraces[stackIndex][i] = backTrace[i];
-			return stackHash;
+			for (uint32_t i=0; i<_numFrames; ++i)
+				m_stackTraces[stackIndex][i] = _stackTrace[i];
 		}
 		else
-		{
 			/// different hash - write full stack
-			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
-		}
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
 	}
+
 #else //RMEM_STACK_TRACE_ENABLE_HASHING
-	addStackTrace_new(_tmpBuffer, _tmpBuffPtr, backTrace, numTraces);
-#endif // RMEM_STACK_TRACE_ENABLE_HASHING
-	return 0;
-}
-
-//--------------------------------------------------------------------------
-/// Called after addStackTrace to finalize the entry in the stack cache
-//--------------------------------------------------------------------------
-void MemoryHook::finalizeStackTrace(const uint32_t stackHash)
-{
-#if RMEM_STACK_TRACE_ENABLE_HASHING
-	const uint32_t stackIndex = stackHash & HashArrayMask;
-
-	if ((stackHash != 0) && (m_stackTraceHashes[stackIndex] == PLACEHOLDER_HASH))
-	{
-		m_stackTraceHashes[stackIndex] = stackHash;
-	}
-#else // RMEM_STACK_TRACE_ENABLE_HASHING
-	(void)stackHash;
+	addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
 #endif // RMEM_STACK_TRACE_ENABLE_HASHING
 }
 
 //--------------------------------------------------------------------------
 /// Writes data to an internal buffer
 //--------------------------------------------------------------------------
-void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _memoryOperation)
+void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace, uint32_t _numFrames)
 {
-	uint32_t stackHash = 0;
-	if (_memoryOperation)
-		stackHash = addStackTrace((uint8_t*)_ptr, _size);
+	uint32_t stackHash	= 0;
+
+#if	RMEM_STACK_TRACE_ENABLE_HASHING
+	if (_stackTrace)
+		stackHash = (uint32_t)hashStackTrace(_stackTrace, _numFrames);
+#endif // RMEM_STACK_TRACE_ENABLE_HASHING
 
 	m_mutexInternalBufferPtrs.lock();
+
+	addStackTrace((uint8_t*)_ptr, _size, _stackTrace, _numFrames, stackHash);
 
 	uint8_t* writeBuffer = 0;
 
@@ -700,9 +693,6 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, bool _memoryOperation)
 	}
 
 	m_mutexInternalBufferPtrs.unlock();
-
-	if (_memoryOperation)
-		finalizeStackTrace(stackHash);
 
 	// NB: below is NOT thread safe if filling BufferSize worth of data through alloc/realloc/etc. 
 	// gets faster than writing and compressing same abount of data to disk (unlikely)

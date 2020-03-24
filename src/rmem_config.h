@@ -37,6 +37,6 @@
 #define RMEM_FLUSH_FILE_WRITES					1
 
 /// Buffers size
-#define RMEM_BUFFER_SIZE						64 * 1024
+#define RMEM_BUFFER_SIZE						128 * 1024
 
 #endif // RMEM_CONFIG_H

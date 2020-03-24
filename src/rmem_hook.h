@@ -19,7 +19,7 @@ namespace rmem {
 	class MemoryHook
 	{
 		public:
-			enum { OpBufferSize = 96 + (RMEM_STACK_TRACE_MAX * sizeof(uintptr_t)) };
+			enum { OpBufferSize = 96 };
 			enum { BufferSize = RMEM_BUFFER_SIZE };
 
 		private:
@@ -103,13 +103,10 @@ namespace rmem {
 			void addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames);
 
 			/// Called on each memory operation
-			uint32_t addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr);
+			void addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numTraces, uint32_t _stackHash);
 
-			/// Called after the stack trace has been written
-			void finalizeStackTrace(const uint32_t stackHash);
-		
 			/// Writes data to the internal buffer
-			void writeToBuffer(void* _ptr, size_t _size, bool _memoryOperation = false);
+			void writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace = 0, uint32_t _numFrames = 0);
 		
 			/// Writes data to file, used internally by writeToBuffer
 			void writeToFile(void* _ptr, size_t _bytesToWrite);
