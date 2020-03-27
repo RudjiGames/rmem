@@ -665,7 +665,8 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 
 	m_mutexInternalBufferPtrs.lock();
 
-	addStackTrace((uint8_t*)_ptr, _size, _stackTrace, _numFrames, stackHash);
+	if (_stackTrace)
+		addStackTrace((uint8_t*)_ptr, _size, _stackTrace, _numFrames, stackHash);
 
 	uint8_t* writeBuffer = 0;
 
