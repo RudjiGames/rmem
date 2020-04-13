@@ -19,7 +19,7 @@ namespace rmem {
 	class MemoryHook
 	{
 		public:
-			enum { OpBufferSize = 96 };
+			enum { OpBufferSize = 96 + (RMEM_STACK_TRACE_MAX * sizeof(uintptr_t)) };
 			enum { BufferSize = RMEM_BUFFER_SIZE };
 
 		private:
