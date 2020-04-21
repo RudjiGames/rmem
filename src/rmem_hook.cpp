@@ -693,13 +693,10 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 		m_bufferBytesWritten = (uint32_t)(_size - BytesToCopy);
 	}
 
-	m_mutexInternalBufferPtrs.unlock();
-
-	// NB: below is NOT thread safe if filling BufferSize worth of data through alloc/realloc/etc. 
-	// gets faster than writing and compressing same abount of data to disk (unlikely)
-
 	if (writeBuffer)
 		writeToFile(writeBuffer, MemoryHook::BufferSize);
+
+	m_mutexInternalBufferPtrs.unlock();
 }
 
 //--------------------------------------------------------------------------
