@@ -32,16 +32,15 @@ namespace rmem {
 
 	static inline uint32_t hashStr(const char* _string)
 	{
-	   uint32_t	h;
-	   uint8_t*	p = (uint8_t*)_string;
+		int hash = 0;
+		uint8_t* p = (uint8_t*)_string;
 
-	   h = 0;
-	   while (*p != '\0')
-	   {
-		  h = 37 * h + *p;
-		  p++;
-	   }
-	   return h;
+		while (*p != '\0')
+		{
+			hash = hash + ((hash) << 5) + *(p) + ((*(p)) << 7);
+			p++;
+		}
+		return ((hash) ^ (hash >> 16)) & 0xffff;
 	} 
 	
 	static inline uintptr_t hashStackTrace(uintptr_t* _backTrace, uint32_t _numEntries)
