@@ -71,20 +71,20 @@
  *------------------------------------------------------------------------*/
 #if defined(__SNC__)
 #undef RMEM_COMPILER_SNC
-#define RMEM_COMPILER_SNC		1
+#define RMEM_COMPILER_SNC			1
 
 /* check for clang before GCC as clang defines GNU macros as well */
 #elif defined(__clang__)
 #undef RMEM_COMPILER_CLANG
-#define RMEM_COMPILER_CLANG		1
+#define RMEM_COMPILER_CLANG			1
 
 #elif defined(__GNUC__)
 #undef RMEM_COMPILER_GCC
-#define RMEM_COMPILER_GCC		1
+#define RMEM_COMPILER_GCC			1
 
 #elif defined(_MSC_VER)
 #undef RMEM_COMPILER_MSVC
-#define RMEM_COMPILER_MSVC		1
+#define RMEM_COMPILER_MSVC			1
 
 #else
 #error "Compiler not supported!"
@@ -95,31 +95,31 @@
  *------------------------------------------------------------------------*/
 #if defined(_XBOX_VER)
 #undef  RMEM_PLATFORM_XBOX360
-#define RMEM_PLATFORM_XBOX360	1
+#define RMEM_PLATFORM_XBOX360		1
 #elif defined(_DURANGO) || defined(_XBOX_ONE)
 #undef  RMEM_PLATFORM_XBOXONE
-#define RMEM_PLATFORM_XBOXONE	1
+#define RMEM_PLATFORM_XBOXONE		1
 #elif defined(_WIN32) || defined(_WIN64) || defined(__WINDOWS__)
 #undef RMEM_PLATFORM_WINDOWS
-#define RMEM_PLATFORM_WINDOWS	1
+#define RMEM_PLATFORM_WINDOWS		1
 #elif defined(__ANDROID__)
 #undef RMEM_PLATFORM_ANDROID
-#define RMEM_PLATFORM_ANDROID	1
+#define RMEM_PLATFORM_ANDROID		1
 #elif defined(__linux__) || defined(linux)
 #undef RMEM_PLATFORM_LINUX
-#define RMEM_PLATFORM_LINUX		1
+#define RMEM_PLATFORM_LINUX			1
 #elif defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__)
 #undef  RMEM_PLATFORM_IOS
-#define RMEM_PLATFORM_IOS		1
+#define RMEM_PLATFORM_IOS			1
 #elif defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
 #undef  RMEM_PLATFORM_OSX
-#define RMEM_PLATFORM_OSX		1
+#define RMEM_PLATFORM_OSX			1
 #elif defined(__CELLOS_LV2__)
 #undef RMEM_PLATFORM_PS3
-#define RMEM_PLATFORM_PS3		1
+#define RMEM_PLATFORM_PS3			1
 #elif defined(__ORBIS__)
 #undef RMEM_PLATFORM_PS4
-#define RMEM_PLATFORM_PS4		1
+#define RMEM_PLATFORM_PS4			1
 
 #else
 #error "Platform not supported!"
@@ -153,10 +153,10 @@
  *------------------------------------------------------------------------*/
 #if RMEM_CPU_PPC
 #undef RMEM_BIG_ENDIAN
-#define RMEM_BIG_ENDIAN			1
+#define RMEM_BIG_ENDIAN				1
 #else
 #undef RMEM_LITTLE_ENDIAN
-#define RMEM_LITTLE_ENDIAN		1
+#define RMEM_LITTLE_ENDIAN			1
 #endif
 
 /*--------------------------------------------------------------------------
@@ -164,30 +164,30 @@
  *------------------------------------------------------------------------*/
 #if (defined(__x86_64__) || defined(__x86_64) || defined(__amd64__) || defined(__amd64) || defined(__ppc64__) || defined(_WIN64) || defined(__LP64__) || defined(_LP64) )
 #undef RMEM_64BIT
-#define RMEM_64BIT 1
+#define RMEM_64BIT					1
 #else
 #undef RMEM_32BIT
-#define RMEM_32BIT 1
+#define RMEM_32BIT					1
 #endif
 
 /*--------------------------------------------------------------------------
  * Log version macros
  *------------------------------------------------------------------------*/
-#define RMEM_VER_HIGH			1
-#define RMEM_VER_LOW			2
+#define RMEM_VER_HIGH				1
+#define RMEM_VER_LOW				2
 
 /*--------------------------------------------------------------------------
  * Memory marker is used to specify time points that are significant in
  * application lifetime in relation to memory allocation patterns.
  * An example would be a start of the main loop execution.
  *------------------------------------------------------------------------*/
-#define MARKER_COLOR_DEFAULT	0xffffffff
-#define MARKER_COLOR_RED		0xffff0000
-#define MARKER_COLOR_GREEN		0xff00ff00
-#define MARKER_COLOR_BLUE		0xff0000ff
-#define MARKER_COLOR_YELLOW		0xffffff00
-#define MARKER_COLOR_CYAN		0xff00ffff
-#define MARKER_COLOR_PURPLE		0xffff00ff
+#define MARKER_COLOR_DEFAULT		0xffffffff
+#define MARKER_COLOR_RED			0xffff0000
+#define MARKER_COLOR_GREEN			0xff00ff00
+#define MARKER_COLOR_BLUE			0xff0000ff
+#define MARKER_COLOR_YELLOW			0xffffff00
+#define MARKER_COLOR_CYAN			0xff00ffff
+#define MARKER_COLOR_PURPLE			0xffff00ff
 
 /*--------------------------------------------------------------------------
  * Memory marker structure
