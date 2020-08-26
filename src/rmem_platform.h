@@ -61,8 +61,13 @@
 	#include <unwind.h>
 	#include <pthread.h>
 	#include <time.h>
+#elif RMEM_PLATFORM_SWITCH
+	#include <unwind.h>
+	#include <pthread.h>
+	#include <nn/os/os_Tick.h>
+	#include <nn/diag/diag_Backtrace.h>
 #else
-	#error "Unsupported compiler!"
+	#error "Unsupported platform!"
 #endif
 
 //--------------------------------------------------------------------------
@@ -80,7 +85,7 @@ static inline uint64_t getThreadID()
 	return (uint64_t)tid;
 #elif RMEM_PLATFORM_PS4
 	return (uint64_t)scePthreadSelf();
-#elif RMEM_PLATFORM_ANDROID
+#elif RMEM_PLATFORM_ANDROID || RMEM_PLATFORM_SWITCH
 	return pthread_self();
 #else
 	#error "Undefined platform!"
@@ -200,6 +205,13 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 	}
 	else
 		return 0;
+#elif RMEM_PLATFORM_SWITCH
+	uintptr_t trace[256];
+	uint32_t numTraces = (uint32_t)nn::diag::GetBacktrace(trace, _numFrames);
+	const uint32_t retTraces = numTraces - _skip;
+	for (uint32_t i=0; i<retTraces && i<_numFrames; ++i)
+		_traces[i] = (uintptr_t)trace[i + _skip];
+	return retTraces;
 #else
 	#error "Unsupported platform!"
 #endif
@@ -219,6 +231,8 @@ inline uint64_t getCPUClock()
 	int64_t q = sceKernelReadTsc();
 #elif RMEM_PLATFORM_ANDROID
 	int64_t q = clock();
+#elif RMEM_PLATFORM_SWITCH
+	int64_t q = nn::os::GetSystemTick().GetInt64Value();
 #else
 	struct timeval now;
 	gettimeofday(&now, 0);
@@ -237,6 +251,8 @@ inline uint64_t getCPUFrequency()
 	return sceKernelGetTscFrequency();
 #elif RMEM_PLATFORM_ANDROID
 	return CLOCKS_PER_SEC;
+#elif RMEM_PLATFORM_SWITCH
+	return nn::os::GetSystemTickFrequency();
 #else
 	return 1000000;
 #endif

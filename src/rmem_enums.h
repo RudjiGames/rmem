@@ -67,6 +67,7 @@ struct ToolChain
 		Android_x86,
 		Xbox_360,
 		Xbox_One,
+		Nintendo_Switch,
 
 		Custom1 = 100,
 		Custom2,

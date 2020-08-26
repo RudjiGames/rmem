@@ -30,6 +30,7 @@
 #define RMEM_PLATFORM_ANDROID		0
 #define RMEM_PLATFORM_XBOX360		0
 #define RMEM_PLATFORM_XBOXONE		0
+#define RMEM_PLATFORM_SWITCH		0
 
 /*--------------------------------------------------------------------------
  * Compilers
@@ -94,33 +95,35 @@
  * Detect platform
  *------------------------------------------------------------------------*/
 #if defined(_XBOX_VER)
-#undef  RMEM_PLATFORM_XBOX360
-#define RMEM_PLATFORM_XBOX360		1
+#undef	RMEM_PLATFORM_XBOX360
+#define	RMEM_PLATFORM_XBOX360		1
 #elif defined(_DURANGO) || defined(_XBOX_ONE)
-#undef  RMEM_PLATFORM_XBOXONE
-#define RMEM_PLATFORM_XBOXONE		1
+#undef	RMEM_PLATFORM_XBOXONE
+#define	RMEM_PLATFORM_XBOXONE		1
 #elif defined(_WIN32) || defined(_WIN64) || defined(__WINDOWS__)
-#undef RMEM_PLATFORM_WINDOWS
-#define RMEM_PLATFORM_WINDOWS		1
+#undef	RMEM_PLATFORM_WINDOWS
+#define	RMEM_PLATFORM_WINDOWS		1
 #elif defined(__ANDROID__)
-#undef RMEM_PLATFORM_ANDROID
-#define RMEM_PLATFORM_ANDROID		1
+#undef	RMEM_PLATFORM_ANDROID
+#define	RMEM_PLATFORM_ANDROID		1
 #elif defined(__linux__) || defined(linux)
-#undef RMEM_PLATFORM_LINUX
-#define RMEM_PLATFORM_LINUX			1
+#undef	RMEM_PLATFORM_LINUX
+#define	RMEM_PLATFORM_LINUX			1
 #elif defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__)
-#undef  RMEM_PLATFORM_IOS
-#define RMEM_PLATFORM_IOS			1
+#undef	RMEM_PLATFORM_IOS
+#define	RMEM_PLATFORM_IOS			1
 #elif defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
-#undef  RMEM_PLATFORM_OSX
-#define RMEM_PLATFORM_OSX			1
+#undef	RMEM_PLATFORM_OSX
+#define	RMEM_PLATFORM_OSX			1
 #elif defined(__CELLOS_LV2__)
-#undef RMEM_PLATFORM_PS3
-#define RMEM_PLATFORM_PS3			1
+#undef	RMEM_PLATFORM_PS3
+#define	RMEM_PLATFORM_PS3			1
 #elif defined(__ORBIS__)
-#undef RMEM_PLATFORM_PS4
-#define RMEM_PLATFORM_PS4			1
-
+#undef	RMEM_PLATFORM_PS4
+#define	RMEM_PLATFORM_PS4			1
+#elif defined(__NINTENDO__)
+#undef	RMEM_PLATFORM_SWITCH
+#define	RMEM_PLATFORM_SWITCH		1
 #else
 #error "Platform not supported!"
 #endif
@@ -128,20 +131,20 @@
 /*--------------------------------------------------------------------------
  * Detect CPU
  *------------------------------------------------------------------------*/
-#if defined(__arm__) || (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP))
-#undef RMEM_CPU_ARM
-#define RMEM_CPU_ARM				1
-#define RMEM_CACHE_LINE_SIZE		64
+#if defined(__arm__) || defined(__aarch64__) || defined(_M_ARM) || (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP))
+#undef	RMEM_CPU_ARM
+#define	RMEM_CPU_ARM				1
+#define	RMEM_CACHE_LINE_SIZE		64
 #elif defined(__MIPSEL__) || defined(__mips_isa_rev)
-#undef RMEM_CPU_MIPS
-#define RMRM_CPU_MIPS				1
-#define RMEM_CACHE_LINE_SIZE		64
+#undef	RMEM_CPU_MIPS
+#define	RMRM_CPU_MIPS				1
+#define	RMEM_CACHE_LINE_SIZE		64
 #elif defined(_M_PPC) || defined(__powerpc__) || defined(__powerpc64__) || defined(__PPU__)
-#undef RMEM_CPU_PPC
-#define RMEM_CPU_PPC				1
-#define RMEM_CACHE_LINE_SIZE		128
+#undef	RMEM_CPU_PPC
+#define	RMEM_CPU_PPC				1
+#define	RMEM_CACHE_LINE_SIZE		128
 #elif defined(_M_IX86) || defined(_M_X64) || defined(__i386__) || defined(__x86_64__)
-#undef RMEM_CPU_X86
+#undef	RMEM_CPU_X86
 #define RMEM_CPU_X86				1
 #define RMEM_CACHE_LINE_SIZE		64
 #else
@@ -152,22 +155,22 @@
  * Detect endianess
  *------------------------------------------------------------------------*/
 #if RMEM_CPU_PPC
-#undef RMEM_BIG_ENDIAN
-#define RMEM_BIG_ENDIAN				1
+#undef	RMEM_BIG_ENDIAN
+#define	RMEM_BIG_ENDIAN				1
 #else
-#undef RMEM_LITTLE_ENDIAN
-#define RMEM_LITTLE_ENDIAN			1
+#undef	RMEM_LITTLE_ENDIAN
+#define	RMEM_LITTLE_ENDIAN			1
 #endif
 
 /*--------------------------------------------------------------------------
  * 32bit or 64bit
  *------------------------------------------------------------------------*/
 #if (defined(__x86_64__) || defined(__x86_64) || defined(__amd64__) || defined(__amd64) || defined(__ppc64__) || defined(_WIN64) || defined(__LP64__) || defined(_LP64) )
-#undef RMEM_64BIT
-#define RMEM_64BIT					1
+#undef	RMEM_64BIT
+#define	RMEM_64BIT					1
 #else
-#undef RMEM_32BIT
-#define RMEM_32BIT					1
+#undef	RMEM_32BIT
+#define	RMEM_32BIT					1
 #endif
 
 /*--------------------------------------------------------------------------

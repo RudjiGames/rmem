@@ -117,30 +117,30 @@ MemoryHook::MemoryHook(void* _data)
 
 #if RMEM_PLATFORM_WINDOWS
 	#if RMEM_COMPILER_MSVC
-		toolChain		= ToolChain::Win_MSVC;
+		toolChain	= ToolChain::Win_MSVC;
 	#elif RMEM_COMPILER_GCC
-		toolChain		= ToolChain::Win_gcc;
+		toolChain	= ToolChain::Win_gcc;
 	#endif
 
 #elif RMEM_PLATFORM_LINUX
 	#if RMEM_COMPILER_CLANG
-		toolChain		= ToolChain::Linux_clang;
+		toolChain	= ToolChain::Linux_clang;
 	#elif RMEM_COMPILER_GCC
-		toolChain		= ToolChain::Linux_gcc;
+		toolChain	= ToolChain::Linux_gcc;
 	#endif
 
 #elif RMEM_PLATFORM_OSX
 	#if RMEM_COMPILER_GCC
-		toolChain		= ToolChain::OSX_gcc;
+		toolChain	= ToolChain::OSX_gcc;
 	#else
-		toolChain		= ToolChain::OSX_clang;
+		toolChain	= ToolChain::OSX_clang;
 	#endif
 
 #elif RMEM_PLATFORM_PS3
 	#if RMEM_COMPILER_GCC
-		toolChain		= ToolChain::PS3_gcc;
+		toolChain	= ToolChain::PS3_gcc;
 	#else
-		toolChain		= ToolChain::PS3_snc;
+		toolChain	= ToolChain::PS3_snc;
 	#endif
 
 #elif RMEM_PLATFORM_PS4
@@ -149,11 +149,11 @@ MemoryHook::MemoryHook(void* _data)
 #elif RMEM_PLATFORM_ANDROID
 
 	#if	RMEM_CPU_ARM
-		toolChain = ToolChain::Android_arm;
+		toolChain	= ToolChain::Android_arm;
 	#elif RMEM_CPU_MIPS
-		toolChain = ToolChain::Android_mips;
+		toolChain	= ToolChain::Android_mips;
 	#elif RMEM_CPU_X86
-		toolChain = ToolChain::Android_x86;
+		toolChain	= ToolChain::Android_x86;
 	#else
 		#error
 	#endif
@@ -163,6 +163,9 @@ MemoryHook::MemoryHook(void* _data)
 
 #elif RMEM_PLATFORM_XBOXONE
 	toolChain		= ToolChain::Xbox_One;
+
+#elif RMEM_PLATFORM_SWITCH
+	toolChain		= ToolChain::Nintendo_Switch;
 
 #else
 	#error "Unsupported platform!"

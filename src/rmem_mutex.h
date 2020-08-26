@@ -33,7 +33,7 @@ namespace rmem {
 		LeaveCriticalSection(_mutex);
 	}
 
-#elif RMEM_PLATFORM_LINUX || RMEM_PLATFORM_OSX || RMEM_PLATFORM_ANDROID
+#elif RMEM_PLATFORM_LINUX || RMEM_PLATFORM_OSX || RMEM_PLATFORM_ANDROID || RMEM_PLATFORM_SWITCH
 	typedef pthread_mutex_t mtuner_mutex;
 
 	static inline void mtuner_mutex_init(mtuner_mutex* _mutex) {
