@@ -75,6 +75,10 @@ extern "C" {
 	#endif
 #endif
 
+#if RMEM_PLATFORM_SWITCH
+	#include <malloc.h> 	/* malloc_usable_size */
+#endif /* RMEM_PLATFORM_LINUX */
+
 #ifdef __cplusplus
 	#define RMEM_EXTERN_C_BEGIN	extern "C" {
 	#define RMEM_EXTERN_C_END	}
