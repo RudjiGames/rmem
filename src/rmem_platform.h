@@ -131,7 +131,7 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 {
 #if RMEM_PLATFORM_WINDOWS || RMEM_PLATFORM_XBOXONE
 
-	#if RMEM_COMPILER_MSVC || RMEM_COMPILER_GCC
+	#if RMEM_COMPILER_MSVC || RMEM_COMPILER_GCC || RMEM_COMPILER_CLANG
 		return (uint32_t)RtlCaptureStackBackTrace((ULONG)_skip, (ULONG)_numFrames, (PVOID*)_traces, NULL);
 	#else
 		#error "Unsupported compiler!"
