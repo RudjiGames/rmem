@@ -1,4 +1,4 @@
-<img src="https://github.com/milostosic/milostosic.github.io/raw/master/logo_libs/rmem.png"/>
+<img src="http://rudji.com/images/libs/rmem.png"/>
 
 [![Build Status](https://travis-ci.org/milostosic/rmem.svg?branch=master)](https://travis-ci.org/milostosic/rmem)
 [![Build status](https://ci.appveyor.com/api/projects/status/4xnlbyty1i4mjrpq?svg=true)](https://ci.appveyor.com/project/milostosic/rmem)
