@@ -83,11 +83,12 @@ for:
       - git clone --depth 1 https://github.com/milostosic/rmem rmem
       - git clone --depth 1 https://github.com/milostosic/rbase rbase
       - git clone --depth 1 https://github.com/milostosic/build build
-      - git clone --depth 1 https://github.com/bkaradzic/GENie GENie		# build GENie from source: `GLIBC_2.29' not found
       - git clone --depth 1 https://github.com/milostosic/rapp rapp
       - git clone --depth 1 https://github.com/bkaradzic/bx.git bx
       - git clone --depth 1 https://github.com/bkaradzic/bimg.git bimg
       - git clone --depth 1 https://github.com/bkaradzic/bgfx.git bgfx
+      - git clone --depth 1 https://github.com/bkaradzic/GENie GENie		# build GENie from source: `GLIBC_2.29' not found
+      - git clone --depth 1 https://github.com/glfw/glfw glfw
       - git clone --depth 1 https://github.com/dougbinks/enkiTS enkiTS
       - cd GENie && make && cd ..
       - mkdir glfwbuild && cd glfwbuild && cmake ../glfw -DGLFW_BUILD_TESTS=OFF && make -j4 && sudo make install && cd ..
