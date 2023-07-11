@@ -666,10 +666,10 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 		stackHash = (uint32_t)hashStackTrace(_stackTrace, _numFrames);
 #endif // RMEM_STACK_TRACE_ENABLE_HASHING
 
-	m_mutexInternalBufferPtrs.lock();
-
 	if (_stackTrace)
 		addStackTrace((uint8_t*)_ptr, _size, _stackTrace, _numFrames, stackHash);
+
+	m_mutexInternalBufferPtrs.lock();
 
 	uint8_t* writeBuffer = 0;
 
