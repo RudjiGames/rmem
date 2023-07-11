@@ -132,10 +132,8 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 #if RMEM_PLATFORM_WINDOWS || RMEM_PLATFORM_XBOXONE
 
 	#if RMEM_COMPILER_MSVC || RMEM_COMPILER_GCC || RMEM_COMPILER_CLANG
-		DWORD count;
-		// while loop is a workaround for #66: https://github.com/milostosic/MTuner/issues/66
-		while ((count = RtlCaptureStackBackTrace((ULONG)_skip, (ULONG)_numFrames, (PVOID*)_traces, NULL)) == 0);
-		return (uint32_t)count;
+		uint32_t numTraces = RtlCaptureStackBackTrace((ULONG)_skip, (ULONG)_numFrames, (PVOID*)_traces, NULL);
+		return numTraces ? numTraces : RtlCaptureStackBackTrace((ULONG)_skip, (ULONG)_numFrames, (PVOID*)_traces, NULL);
 	#else
 		#error "Unsupported compiler!"
 	#endif
