@@ -666,7 +666,11 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 		stackHash = (uint32_t)hashStackTrace(_stackTrace, _numFrames);
 #endif // RMEM_STACK_TRACE_ENABLE_HASHING
 
-	m_mutexInternalBufferPtrs.lock();
+	int cnt = 0;
+	// should pass on first attempt but some applications are not that gentle and may crash/terminate a thread while the lock is still held. We drop data.
+	while ((!m_mutexInternalBufferPtrs.tryLock()) && (++cnt < 256));
+	if (cnt == 256)
+		return;
 
 	if (_stackTrace)
 		addStackTrace((uint8_t*)_ptr, _size, _stackTrace, _numFrames, stackHash);
