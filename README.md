@@ -1,23 +1,22 @@
 <img src="https://rudji.com/images/lib/rmem.png"/>
 
-[![Build status](https://ci.appveyor.com/api/projects/status/4xnlbyty1i4mjrpq?svg=true)](https://ci.appveyor.com/project/milostosic/rmem)
-[![License](https://img.shields.io/badge/license-BSD--2%20clause-blue.svg)](https://github.com/milostosic/rmem/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-BSD--2%20clause-blue.svg)](https://github.com/RudjiGames/rmem/blob/master/LICENSE)
 
-**rmem** is an SDK library for [MTuner](http://mtuner.net/), providing additional features and cross-platform support.
+**rmem** is an SDK library for [**MTuner**](https://github.com/milostosic/MTuner), providing additional features and cross-platform support.
 
 Source Code
 ======
 
 You can get the latest source code by cloning it from github:
 
-      git clone https://github.com/milostosic/rmem.git 
+      git clone https://github.com/RudjiGames/rmem.git 
 
 Dependencies
 ======
 
-rtm build system scirpts (https://github.com/milostosic/build):
+rtm build system scirpts (https://github.com/RudjiGames/build):
 
-	git clone https://github.com/milostosic/build.git
+	git clone https://github.com/RudjiGames/build.git
 
 Build
 ======
@@ -60,22 +59,16 @@ Note that certain platforms require 64bit builds, for example to build on PS4:
 
       Release :  make -R config=release64
 
-Author
-======
-
-The author of **rmem** is Milos Tosic  
-[ <img src="https://github.com/milostosic/build/raw/gh-pages/images/twitter.png">](https://twitter.com/milostosic)[ <img src="https://github.com/milostosic/build/raw/gh-pages/images/mail.png">](mailto:milostosic77@gmail.com)  
-
 License (BSD 2-clause)
 ======
 
 <a href="http://opensource.org/licenses/BSD-2-Clause" target="_blank">
-<img align="right" src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png">
+<img align="right" src="https://opensource.org/wp-content/uploads/2022/10/osi-badge-dark.svg" width="100" height="137">
 </a>
 
-	Copyright (c) 2018 Milos Tosic. All rights reserved.
+	Copyright 2023 Milos Tosic. All rights reserved.
 	
-	https://github.com/milostosic/rmem
+	https://github.com/RudjiGames/rmem
 	
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
