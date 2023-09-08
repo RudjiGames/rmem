@@ -11,12 +11,7 @@ You can get the latest source code by cloning it from github:
 
       git clone https://github.com/RudjiGames/rmem.git 
 
-Dependencies
-======
-
-rtm build system scirpts (https://github.com/RudjiGames/build):
-
-	git clone https://github.com/RudjiGames/build.git
+The provided, optional, [GENie](https://github.com/bkaradzic/GENie) scripts are part of the [build](https://github.com/RudjiGames/build) scrpt system and can be used to generate project files/solution. For more information please see [build](https://github.com/RudjiGames/build) documentation.
 
 Build
 ======
