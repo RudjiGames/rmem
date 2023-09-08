@@ -11,12 +11,10 @@ You can get the latest source code by cloning it from github:
 
       git clone https://github.com/RudjiGames/rmem.git 
 
-The provided, optional, [GENie](https://github.com/bkaradzic/GENie) scripts are part of the [build](https://github.com/RudjiGames/build) scrpt system and can be used to generate project files/solution. For more information please see [build](https://github.com/RudjiGames/build) documentation.
-
 Build
 ======
 
-MTuner SDK GENie script can generate Microsoft Visual Studio solution or 
+**rmem** (MTuner SDK) GENie script can generate Microsoft Visual Studio solution or 
 makefiles for a GCC based compiler or cross compiler. Generating a MSVC
 solution is done using the following command:
 
