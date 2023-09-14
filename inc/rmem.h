@@ -279,7 +279,13 @@ extern "C" {
 
 	/* Called on module load with name, base address and module size */
 	void rmemAddModuleW(const wchar_t* _name, uint64_t _base, uint32_t _size);
-	
+
+	/* Called on module unload with name, base address and module size */
+	void rmemRemoveModuleC(const char* _name, uint64_t _base, uint32_t _size);
+
+	/* Called on module unload with name, base address and module size */
+	void rmemRemoveModuleW(const wchar_t* _name, uint64_t _base, uint32_t _size);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif /* __cplusplus */

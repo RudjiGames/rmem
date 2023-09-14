@@ -42,6 +42,7 @@ struct LogMarkers
 		RegisterMarker,
 		Marker,
 		Module,
+		ModuleUnload,
 		Allocator
 	};
 };

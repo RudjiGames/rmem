@@ -98,6 +98,12 @@ namespace rmem {
 			/// Called for each loaded module
 			void registerModule(const wchar_t* _name, uint64_t _base, uint32_t _size);
 
+			/// Called for each unloaded module
+			void unregisterModule(const char* _name, uint64_t _base, uint32_t _size);
+
+			/// Called for each unloaded module
+			void unregisterModule(const wchar_t* _name, uint64_t _base, uint32_t _size);
+
 		private:
 			/// Writes out a full stack trace
 			void addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames);

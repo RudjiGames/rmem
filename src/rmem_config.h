@@ -20,7 +20,7 @@
 ///
 /// For platforms with heavy memory constraints, keeping this value low will
 /// minimize the impact of profiling on application functionality.
-#define RMEM_STACK_TRACE_MAX					48
+#define RMEM_STACK_TRACE_MAX					32
 
 /// If enabled, compresses the output stream using LZ4. Note that this is a
 /// CPU intensive process and might cause noticeable spikes in CPU usage.

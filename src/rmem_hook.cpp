@@ -559,7 +559,7 @@ void MemoryHook::free(uint64_t _handle, void* _ptr)
 //--------------------------------------------------------------------------
 /// Called for each loaded module
 //--------------------------------------------------------------------------
-void MemoryHook::registerModule(const char* _name, uint64_t inBase, uint32_t _size)
+void MemoryHook::registerModule(const char* _name, uint64_t _base, uint32_t _size)
 {
 	uint8_t		tmpBuffer[1024];
 	size_t		tmpBufferPtr = 0;
@@ -569,7 +569,7 @@ void MemoryHook::registerModule(const char* _name, uint64_t inBase, uint32_t _si
 	Marker = 1;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
-	addVarToBuffer(inBase, tmpBuffer, tmpBufferPtr);
+	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
 	writeToBuffer(tmpBuffer, tmpBufferPtr);
 }
@@ -577,7 +577,7 @@ void MemoryHook::registerModule(const char* _name, uint64_t inBase, uint32_t _si
 //--------------------------------------------------------------------------
 /// Called for each loaded module
 //--------------------------------------------------------------------------
-void MemoryHook::registerModule(const wchar_t* _name, uint64_t inBase, uint32_t _size)
+void MemoryHook::registerModule(const wchar_t* _name, uint64_t _base, uint32_t _size)
 {
 	uint8_t		tmpBuffer[1024];
 	size_t		tmpBufferPtr = 0;
@@ -587,7 +587,43 @@ void MemoryHook::registerModule(const wchar_t* _name, uint64_t inBase, uint32_t 
 	Marker = 2;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
-	addVarToBuffer(inBase, tmpBuffer, tmpBufferPtr);
+	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
+	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
+	writeToBuffer(tmpBuffer, tmpBufferPtr);
+}
+
+//--------------------------------------------------------------------------
+/// Called for each unloaded module
+//--------------------------------------------------------------------------
+void MemoryHook::unregisterModule(const char* _name, uint64_t _base, uint32_t _size)
+{
+	uint8_t		tmpBuffer[1024];
+	size_t		tmpBufferPtr = 0;
+
+	uint8_t Marker = LogMarkers::ModuleUnload;
+	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
+	Marker = 1;
+	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
+	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
+	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
+	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
+	writeToBuffer(tmpBuffer, tmpBufferPtr);
+}
+
+//--------------------------------------------------------------------------
+/// Called for each unloaded module
+//--------------------------------------------------------------------------
+void MemoryHook::unregisterModule(const wchar_t* _name, uint64_t _base, uint32_t _size)
+{
+	uint8_t		tmpBuffer[1024];
+	size_t		tmpBufferPtr = 0;
+
+	uint8_t Marker = LogMarkers::ModuleUnload;
+	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
+	Marker = 2;
+	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
+	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
+	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
 	writeToBuffer(tmpBuffer, tmpBufferPtr);
 }

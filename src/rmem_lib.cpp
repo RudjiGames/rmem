@@ -197,4 +197,18 @@ extern "C" {
 			hook->registerModule(_name, _base, _size);
 	}
 
+	void rmemRemoveModuleC(const char* _name, uint64_t _base, uint32_t _size)
+	{
+		rmem::MemoryHook*& hook = getMemoryHookPtr();
+		if (hook)
+			hook->registerModule(_name, _base, _size);
+	}
+
+	void rmemRemoveModuleW(const wchar_t* _name, uint64_t _base, uint32_t _size)
+	{
+		rmem::MemoryHook*& hook = getMemoryHookPtr();
+		if (hook)
+			hook->registerModule(_name, _base, _size);
+	}
+
 } // extern "C"

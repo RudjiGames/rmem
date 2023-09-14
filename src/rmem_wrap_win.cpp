@@ -44,6 +44,8 @@ typedef HMODULE	(WINAPI *fn_LoadLibraryA)(LPCSTR _fileName);
 typedef HMODULE	(WINAPI *fn_LoadLibraryW)(LPCWSTR _fileName);
 typedef HMODULE	(WINAPI *fn_LoadLibraryExA)(LPCSTR _fileName, HANDLE _file, DWORD _flags);
 typedef HMODULE	(WINAPI *fn_LoadLibraryExW)(LPCWSTR _fileName, HANDLE _file, DWORD _flags);
+typedef HMODULE	(WINAPI *fn_FreeLibrary)(HMODULE _hLibModule);
+typedef HMODULE	(WINAPI *fn_FreeLibraryAndExitThread)(HMODULE _hLibModule, DWORD _dwExitCode);
 typedef void	(WINAPI *fn_exit)(int _code);
 
 #define FN_ORIGINAL(name)			\
@@ -69,6 +71,8 @@ FN_ORIGINAL(LoadLibraryA)
 FN_ORIGINAL(LoadLibraryW)
 FN_ORIGINAL(LoadLibraryExA)
 FN_ORIGINAL(LoadLibraryExW)
+FN_ORIGINAL(FreeLibrary)
+FN_ORIGINAL(FreeLibraryAndExitThread)
 FN_ORIGINAL(exit)
 
 struct ThreadInitializer
@@ -228,6 +232,42 @@ HMODULE WINAPI detour_LoadLibraryExW(LPCWSTR _fileName, HANDLE _file, DWORD _fla
 	return ret;
 }
 
+HMODULE WINAPI detour_FreeLibrary(HMODULE _hLibModule)
+{
+	HMODULE ret = (CALL_ORIGINAL(FreeLibrary)(_hLibModule));
+	if (ret != NULL)
+	{
+		MODULEINFO info;
+		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
+			return ret;
+		wchar_t fullPath[1024];
+		if (0 == GetModuleFileNameW(ret, fullPath, 1024))
+			return ret;
+
+		if (g_shouldProfile)
+			rmemRemoveModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+	}
+	return ret;
+}
+
+HMODULE WINAPI detour_FreeLibraryAndExitThread(HMODULE _hLibModule, DWORD _dwExitCode)
+{
+	HMODULE ret = (CALL_ORIGINAL(FreeLibraryAndExitThread)(_hLibModule, _dwExitCode));
+	if (ret != NULL)
+	{
+		MODULEINFO info;
+		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
+			return ret;
+		wchar_t fullPath[1024];
+		if (0 == GetModuleFileNameW(ret, fullPath, 1024))
+			return ret;
+
+		if (g_shouldProfile)
+			rmemRemoveModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+	}
+	return ret;
+}
+
 bool g_linkerBased;
 
 
@@ -284,6 +324,8 @@ extern "C"
 		CREATE_HOOK(kerneldll32, LoadLibraryW);
 		CREATE_HOOK(kerneldll32, LoadLibraryExA);
 		CREATE_HOOK(kerneldll32, LoadLibraryExW);
+		CREATE_HOOK(kerneldll32, FreeLibrary);
+		CREATE_HOOK(kerneldll32, FreeLibraryAndExitThread);
 
 		if (_isLinkerBased)
 		{
@@ -318,6 +360,8 @@ extern "C"
 		REMOVE_HOOK(kerneldll32, LoadLibraryW);
 		REMOVE_HOOK(kerneldll32, LoadLibraryExA);
 		REMOVE_HOOK(kerneldll32, LoadLibraryExW);
+		REMOVE_HOOK(kerneldll32, FreeLibrary);
+		REMOVE_HOOK(kerneldll32, FreeLibraryAndExitThread);
 
 		if (!g_linkerBased)
 			MH_Uninitialize();
