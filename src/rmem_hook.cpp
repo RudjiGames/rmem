@@ -571,6 +571,8 @@ void MemoryHook::registerModule(const char* _name, uint64_t _base, uint32_t _siz
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
+	const int64_t clock = getCPUClock() - m_startTime;
+	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
 	writeToBuffer(tmpBuffer, tmpBufferPtr);
 }
 
@@ -589,6 +591,8 @@ void MemoryHook::registerModule(const wchar_t* _name, uint64_t _base, uint32_t _
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
+	const int64_t clock = getCPUClock() - m_startTime;
+	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
 	writeToBuffer(tmpBuffer, tmpBufferPtr);
 }
 
@@ -607,6 +611,8 @@ void MemoryHook::unregisterModule(const char* _name, uint64_t _base, uint32_t _s
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
+	const int64_t clock = getCPUClock() - m_startTime;
+	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
 	writeToBuffer(tmpBuffer, tmpBufferPtr);
 }
 
@@ -625,6 +631,8 @@ void MemoryHook::unregisterModule(const wchar_t* _name, uint64_t _base, uint32_t
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_size, tmpBuffer, tmpBufferPtr);
+	const int64_t clock = getCPUClock() - m_startTime;
+	addVarToBuffer(clock, tmpBuffer, tmpBufferPtr);
 	writeToBuffer(tmpBuffer, tmpBufferPtr);
 }
 
