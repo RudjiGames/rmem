@@ -1,5 +1,6 @@
 <img src="https://rudji.com/images/lib/rmem.png"/>
 
+[![Build status](https://ci.appveyor.com/api/projects/status/cbymgif55qmpa4tq?svg=true)](https://ci.appveyor.com/project/milostosic/rmem-f7tyu)
 [![License](https://img.shields.io/badge/license-BSD--2%20clause-blue.svg)](https://github.com/RudjiGames/rmem/blob/master/LICENSE)
 
 **rmem** is an SDK library for [**MTuner**](https://github.com/milostosic/MTuner), providing additional features and cross-platform support.
@@ -11,17 +12,10 @@ You can get the latest source code by cloning it from github:
 
       git clone https://github.com/RudjiGames/rmem.git 
 
-Dependencies
-======
-
-rtm build system scirpts (https://github.com/RudjiGames/build):
-
-	git clone https://github.com/RudjiGames/build.git
-
 Build
 ======
 
-MTuner SDK GENie script can generate Microsoft Visual Studio solution or 
+**rmem** (MTuner SDK) GENie script can generate Microsoft Visual Studio solution or 
 makefiles for a GCC based compiler or cross compiler. Generating a MSVC
 solution is done using the following command:
 
