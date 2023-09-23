@@ -1,4 +1,4 @@
-<img src="https://rudji.com/images/lib/rmem.png"/>
+<img src="https://www.rudji.com/images/lib/rmem.png"/>
 
 [![Build status](https://ci.appveyor.com/api/projects/status/cbymgif55qmpa4tq?svg=true)](https://ci.appveyor.com/project/milostosic/rmem-f7tyu)
 [![License](https://img.shields.io/badge/license-BSD--2%20clause-blue.svg)](https://github.com/RudjiGames/rmem/blob/master/LICENSE)
