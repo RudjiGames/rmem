@@ -55,6 +55,7 @@ for:
       - job_name: Windows
   
     init:
+      - git clone --recursive --depth 1 https://github.com/RudjiGames/rapp    rapp
       - git clone --depth 1 https://github.com/RudjiGames/rmem    rmem
       - git clone --depth 1 https://github.com/RudjiGames/rbase   rbase
       - git clone --depth 1 https://github.com/RudjiGames/build   build
@@ -74,6 +75,7 @@ for:
       - job_name: Linux
 
     init:
+      - git clone --recursive --depth 1 https://github.com/RudjiGames/rapp    rapp
       - git clone --depth 1 https://github.com/RudjiGames/rmem    rmem
       - git clone --depth 1 https://github.com/RudjiGames/rbase   rbase
       - git clone --depth 1 https://github.com/RudjiGames/build   build
@@ -97,6 +99,7 @@ for:
       - job_name: OSX
 
     init:
+      - git clone --recursive --depth 1 https://github.com/RudjiGames/rapp    rapp
       - git clone --depth 1 https://github.com/RudjiGames/rmem rmem
       - git clone --depth 1 https://github.com/RudjiGames/rbase rbase
       - git clone --depth 1 https://github.com/RudjiGames/build build
