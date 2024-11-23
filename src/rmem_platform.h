@@ -47,7 +47,7 @@
 	#include <sys/ppu_thread.h>
 	#include <sys/sys_time.h>
 	#include <cell/dbg.h>
-#elif RMEM_PLATFORM_PS4
+#elif RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
 	#define _SYS__STDINT_H_
 	#include <kernel.h>
 	#include <stdio.h>	// FILE
@@ -83,7 +83,7 @@ static inline uint64_t getThreadID()
 	sys_ppu_thread_t tid;
 	sys_ppu_thread_get_id(&tid);
 	return (uint64_t)tid;
-#elif RMEM_PLATFORM_PS4
+#elif RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
 	return (uint64_t)scePthreadSelf();
 #elif RMEM_PLATFORM_ANDROID || RMEM_PLATFORM_SWITCH
 	return pthread_self();
@@ -151,7 +151,7 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 
 	return num;
 
-#elif RMEM_PLATFORM_PS4
+#elif RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
 
 	uint32_t num = 0;
 	void** ptr = (void**)__builtin_frame_address(0);

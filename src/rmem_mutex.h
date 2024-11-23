@@ -82,7 +82,7 @@ namespace rmem {
 		sys_lwmutex_unlock(_mutex);
 	}
 
-#elif RMEM_PLATFORM_PS4
+#elif RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
 	typedef ScePthreadMutex mtuner_mutex;
 
 	static inline void mtuner_mutex_init(mtuner_mutex* _mutex) {
