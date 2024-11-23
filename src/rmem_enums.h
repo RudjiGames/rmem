@@ -63,6 +63,7 @@ struct ToolChain
 		PS3_gcc,
 		PS3_snc,
 		PS4_clang,
+		PS5_clang,
 		Android_arm,
 		Android_mips,
 		Android_x86,

@@ -146,6 +146,9 @@ MemoryHook::MemoryHook(void* _data)
 #elif RMEM_PLATFORM_PS4
 	toolChain		= ToolChain::PS4_clang;
 
+#elif RMEM_PLATFORM_PS5
+	toolChain		= ToolChain::PS5_clang;
+
 #elif RMEM_PLATFORM_ANDROID
 
 	#if	RMEM_CPU_ARM

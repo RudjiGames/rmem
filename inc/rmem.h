@@ -27,6 +27,7 @@
 #define RMEM_PLATFORM_OSX			0
 #define RMEM_PLATFORM_PS3			0
 #define RMEM_PLATFORM_PS4			0
+#define RMEM_PLATFORM_PS5			0
 #define RMEM_PLATFORM_ANDROID		0
 #define RMEM_PLATFORM_XBOX360		0
 #define RMEM_PLATFORM_XBOXONE		0
@@ -121,6 +122,9 @@
 #elif defined(__ORBIS__)
 #undef	RMEM_PLATFORM_PS4
 #define	RMEM_PLATFORM_PS4			1
+#elif defined(__PROSPERO__)
+#undef	RMEM_PLATFORM_PS5
+#define	RMEM_PLATFORM_PS5			1
 #elif defined(__NINTENDO__)
 #undef	RMEM_PLATFORM_SWITCH
 #define	RMEM_PLATFORM_SWITCH		1
