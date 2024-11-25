@@ -13,6 +13,8 @@
 
 namespace rmem {
 
+	uint64_t CityHash64(const void* _key, uint32_t _len);
+
 	inline uint32_t uint32_cnttzl(uint32_t _val)
 	{
 #if RMEM_COMPILER_MSVC && RMEM_PLATFORM_WINDOWS
@@ -42,13 +44,10 @@ namespace rmem {
 		}
 		return ((hash) ^ (hash >> 16)) & 0xffff;
 	} 
-	
+
 	static inline uintptr_t hashStackTrace(uintptr_t* _backTrace, uint32_t _numEntries)
 	{
-		uintptr_t hash = 0;
-		for (uint32_t i=0; i<_numEntries; ++i)
-			hash += _backTrace[i];
-		return hash;
+		return (uintptr_t)CityHash64(_backTrace, _numEntries * sizeof(uintptr_t));
 	}
 
 	template <typename T>
