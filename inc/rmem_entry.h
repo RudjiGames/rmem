@@ -75,6 +75,10 @@ extern "C" {
 	#endif
 #endif
 
+#if RMEM_PLATFORM_PS5
+	#include <stdlib.h>	/* malloc_usable_size */
+#endif
+
 #if RMEM_PLATFORM_SWITCH
 	#include <malloc.h>	/* malloc_usable_size */
 	#define RMEM_NO_MALLOC_INIT
