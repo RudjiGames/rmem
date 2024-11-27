@@ -593,11 +593,12 @@ typedef enum { noDictIssue = 0, dictSmall } dictIssue_directive;
 /*-************************************
 *  Local Utils
 **************************************/
-int LZ4_versionNumber (void) { return LZ4_VERSION_NUMBER; }
-const char* LZ4_versionString(void) { return LZ4_VERSION_STRING; }
-int LZ4_compressBound(int isize)  { return LZ4_COMPRESSBOUND(isize); }
-int LZ4_sizeofState() { return LZ4_STREAMSIZE; }
-
+namespace lz4 {
+	int LZ4_versionNumber(void) { return LZ4_VERSION_NUMBER; }
+	const char* LZ4_versionString(void) { return LZ4_VERSION_STRING; }
+	int LZ4_compressBound(int isize) { return LZ4_COMPRESSBOUND(isize); }
+	int LZ4_sizeofState() { return LZ4_STREAMSIZE; }
+} // namespace lz4
 
 /*-************************************
 *  Internal Definitions used in Tests
@@ -1130,6 +1131,7 @@ _last_literals:
 }
 
 
+namespace lz4 {
 int LZ4_compress_fast_extState(void* state, const char* source, char* dest, int inputSize, int maxOutputSize, int acceleration)
 {
     LZ4_stream_t_internal* const ctx = & LZ4_initStream(state, sizeof(LZ4_stream_t)) -> internal_donotuse;
@@ -1208,7 +1210,7 @@ int LZ4_compress_fast(const char* source, char* dest, int inputSize, int maxOutp
     LZ4_stream_t ctx;
     LZ4_stream_t* const ctxPtr = &ctx;
 #endif
-    result = LZ4_compress_fast_extState(ctxPtr, source, dest, inputSize, maxOutputSize, acceleration);
+    result = lz4::LZ4_compress_fast_extState(ctxPtr, source, dest, inputSize, maxOutputSize, acceleration);
 
 #if (LZ4_HEAPMODE)
     FREEMEM(ctxPtr);
@@ -1216,12 +1218,12 @@ int LZ4_compress_fast(const char* source, char* dest, int inputSize, int maxOutp
     return result;
 }
 
-
 int LZ4_compress_default(const char* src, char* dst, int srcSize, int maxOutputSize)
 {
     return LZ4_compress_fast(src, dst, srcSize, maxOutputSize, 1);
 }
 
+} // namespace lz4
 
 /* hidden debug function */
 /* strangely enough, gcc generates faster code when this function is uncommented, even if unused */

@@ -8,12 +8,9 @@
 #include "rmem_utils.h"
 #include "rmem_enums.h"
 
-namespace lz4 {
 #if RMEM_ENABLE_LZ4_COMPRESSION
-#include "../3rd/lz4-r191/lz4.h"
 #include "../3rd/lz4-r191/lz4.c"
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
-} // namespace lz4
 
 #if RMEM_PLATFORM_WINDOWS
 typedef HRESULT (WINAPI *fnSHGetFolderPathW)(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
