@@ -8,10 +8,12 @@
 #include "rmem_utils.h"
 #include "rmem_enums.h"
 
+namespace lz4 {
 #if RMEM_ENABLE_LZ4_COMPRESSION
 #include "../3rd/lz4-r191/lz4.h"
 #include "../3rd/lz4-r191/lz4.c"
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
+} // namespace lz4
 
 #if RMEM_PLATFORM_WINDOWS
 typedef HRESULT (WINAPI *fnSHGetFolderPathW)(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
@@ -774,7 +776,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		if (m_excessBufferPtr)
 		{
 #if RMEM_ENABLE_LZ4_COMPRESSION
-			uint32_t compSize = LZ4_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
+			uint32_t compSize = lz4::LZ4_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
 			fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 			fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 			fwrite(m_bufferCompressed, compSize, 1, m_file);
@@ -786,7 +788,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		}
 
 #if RMEM_ENABLE_LZ4_COMPRESSION
-		uint32_t compSize = LZ4_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, MemoryHook::BufferSize);
+		uint32_t compSize = lz4::LZ4_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, MemoryHook::BufferSize);
 		fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 		fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 		fwrite(m_bufferCompressed, compSize, 1, m_file);
