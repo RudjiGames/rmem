@@ -773,7 +773,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		if (m_excessBufferPtr)
 		{
 #if RMEM_ENABLE_LZ4_COMPRESSION
-			uint32_t compSize = lz4::LZ4_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
+			uint32_t compSize = LZ5_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
 			fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 			fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 			fwrite(m_bufferCompressed, compSize, 1, m_file);
@@ -785,7 +785,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		}
 
 #if RMEM_ENABLE_LZ4_COMPRESSION
-		uint32_t compSize = lz4::LZ4_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, MemoryHook::BufferSize);
+		uint32_t compSize = LZ5_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, MemoryHook::BufferSize);
 		fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 		fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 		fwrite(m_bufferCompressed, compSize, 1, m_file);
