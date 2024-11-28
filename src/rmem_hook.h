@@ -1,7 +1,7 @@
-/*
- * Copyright 2024 Milos Tosic. All Rights Reserved.
- * License: http://www.opensource.org/licenses/BSD-2-Clause
- */
+//--------------------------------------------------------------------------//
+/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
+//--------------------------------------------------------------------------//
 
 #ifndef RMEM_HOOK_H
 #define RMEM_HOOK_H
