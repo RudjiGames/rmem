@@ -53,14 +53,14 @@ extern "C" {
 	inline void* operator new(size_t, rmemPlacementNew, void* ptr) { return ptr; }
 	inline void operator delete(void*, rmemPlacementNew, void*) {}
 
-	void rmemInit(void* _data)
+	void rmemInit(void* _data, const char* _rootPathOverride)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
 		if (hook != NULL)
 			return;
 
 		uint8_t* buff = getMemoryHookBuffer();
-		new (rmemPlacementNew(), buff) rmem::MemoryHook(_data);
+		new (rmemPlacementNew(), buff) rmem::MemoryHook(_data, _rootPathOverride);
 		hook = (rmem::MemoryHook*)buff;
 	}
 

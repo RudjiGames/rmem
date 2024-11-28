@@ -53,7 +53,7 @@ namespace rmem {
 		uintptr_t	m_stackTraces[MemoryHook::HashArraySize][RMEM_STACK_TRACE_MAX];
 
 	public:
-		MemoryHook(void* _data);
+		MemoryHook(void* _data, const char* _rootPathOverride);
 		~MemoryHook();
 
 		/// Called on shut down to flush any queued data

@@ -86,7 +86,7 @@ static uint8_t s_tempBuffer[MemoryHook::BufferSize];
 //--------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------
-MemoryHook::MemoryHook(void* _data)
+MemoryHook::MemoryHook(void* _data, const char* _rootPathOverride)
 	: m_ignoreAllocs(false)
 {
 	(void)_data;
@@ -229,29 +229,34 @@ MemoryHook::MemoryHook(void* _data)
 		--len;
 	wchar_t* name = &currFile[len+1];
 	wchar_t* endName = wcsstr(name, L".");
-	*endName = '\0';
+	*endName = L'\0';
 	wcscat_s(m_fileName, 512, name);
 #else
 	char secBuff[256];
 	char* timeString = sGetTimeString(secBuff);
 
-	strcpy(m_fileName, "");
+	if (_rootPathOverride)
+		strcpy(m_fileName, _rootPathOverride);
+	else
+	{
+		strcpy(m_fileName, "");
 
-	#if RMEM_PLATFORM_ANDROID
+#if RMEM_PLATFORM_ANDROID
 		strcpy(m_fileName, "/sdcard/");
-	#endif // RMEM_PLATFORM_ANDROID
+#endif // RMEM_PLATFORM_ANDROID
 
-	#if RMEM_PLATFORM_PS3
+#if RMEM_PLATFORM_PS3
 		strcpy(m_fileName, "/app_home/");
-	#endif // RMEM_PLATFORM_PS3
+#endif // RMEM_PLATFORM_PS3
 
-	#if RMEM_PLATFORM_PS4
+#if RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
 		strcpy(m_fileName, "/hostapp/");
-	#endif // RMEM_PLATFORM_PS4
+#endif // RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
 
-	#if RMEM_PLATFORM_XBOX360
+#if RMEM_PLATFORM_XBOX360
 		strcpy(m_fileName, "game:\\");
-	#endif // RMEM_PLATFORM_XBOX360
+#endif // RMEM_PLATFORM_XBOX360
+	}
 
 	strcat(m_fileName, "mtuner_capture_");
 #endif
