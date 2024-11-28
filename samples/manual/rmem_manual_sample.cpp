@@ -55,15 +55,17 @@ struct Allocator
 {
 	static void* s_realloc(void* _ptr, size_t _size)
 	{
+		const void* prevPtr = _ptr;
 		void* ptr = realloc(_ptr, _size);
-		rmemRealloc(0, ptr, (uint32_t)_size, (uint32_t)getReallocOverhead(ptr), _ptr);
+		rmemRealloc(0, ptr, (uint32_t)_size, (uint32_t)getReallocOverhead(ptr), prevPtr);
 		return ptr;
 	}
 		
 	static void	s_free(void* _ptr)
 	{
+		const void* prevPtr = _ptr;
 		free(_ptr);
-		rmemFree(0,_ptr);
+		rmemFree(0, prevPtr);
 	}
 };
 
