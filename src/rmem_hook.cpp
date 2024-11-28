@@ -8,10 +8,17 @@
 #include "rmem_utils.h"
 #include "rmem_enums.h"
 
-#include "../3rd/lz4-r191/lz4.h"
+#include "../3rd/lz4/lz4.h"
 #if RMEM_ENABLE_LZ4_COMPRESSION
 #if !RMEM_LZ4_NO_DEFINE
-#include "../3rd/lz4-r191/lz4.c"
+#if RMEM_COMPILER_MSVC
+#pragma warning (push)
+#pragma warning (disable:4996) // This function is deprecated and unsafe
+#endif
+#include "../3rd/lz4/lz4.c"
+#if RMEM_COMPILER_MSVC
+#pragma warning (pop)
+#endif
 #endif // !RMEM_LZ4_NO_DEFINE
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
 
@@ -86,11 +93,9 @@ static uint8_t s_tempBuffer[MemoryHook::BufferSize];
 //--------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------
-MemoryHook::MemoryHook(void* _data, const char* _rootPathOverride)
+MemoryHook::MemoryHook(const char* _rootPathOverride)
 	: m_ignoreAllocs(false)
 {
-	(void)_data;
-	
 	m_startTime = getCPUClock();
 	m_bufferPtr	= m_bufferData;
 
@@ -194,8 +199,12 @@ MemoryHook::MemoryHook(void* _data, const char* _rootPathOverride)
 	wchar_t secBuff[256];
 	wchar_t* timeString = sGetTimeString(secBuff);
 
-	if (_data)
-		wcscpy_s(m_fileName, 512, (wchar_t*)_data);
+	if (_rootPathOverride)
+	{
+		size_t len = strlen(_rootPathOverride) + 1; // include nil
+		for (size_t s=0; s<len; ++s)
+			m_fileName[s] = _rootPathOverride[s];
+	}
 	else
 	{
 		m_fileName[0] = 0;
@@ -781,7 +790,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		if (m_excessBufferPtr)
 		{
 #if RMEM_ENABLE_LZ4_COMPRESSION
-			uint32_t compSize = LZ5_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
+			uint32_t compSize = LZ4_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
 			fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 			fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 			fwrite(m_bufferCompressed, compSize, 1, m_file);
@@ -793,7 +802,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		}
 
 #if RMEM_ENABLE_LZ4_COMPRESSION
-		uint32_t compSize = LZ5_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, MemoryHook::BufferSize);
+		uint32_t compSize = LZ4_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, MemoryHook::BufferSize);
 		fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 		fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 		fwrite(m_bufferCompressed, compSize, 1, m_file);

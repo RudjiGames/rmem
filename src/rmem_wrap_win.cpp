@@ -11,8 +11,8 @@
 
 #include "rmem_wrap_win.h"
 
-wchar_t g_prefixAppData[512];
-typedef HRESULT (WINAPI *fnSHGetFolderPathW)(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
+char g_prefixAppData[512];
+typedef HRESULT (WINAPI *fnSHGetFolderPathA)(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPSTR pszPath);
 
 #if !RMEM_COMPILER_GCC
 #pragma warning (push)
@@ -302,11 +302,11 @@ extern "C"
 		HMODULE shelldll32 = ::LoadLibraryA("Shell32");
 		if (shelldll32)
 		{
-			fnSHGetFolderPathW fn = (fnSHGetFolderPathW)::GetProcAddress(shelldll32, "SHGetFolderPathW");
+			fnSHGetFolderPathA fn = (fnSHGetFolderPathA)::GetProcAddress(shelldll32, "SHGetFolderPathA");
 			if (fn)
 			{
 				if (SUCCEEDED(fn(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, g_prefixAppData)))
-					wcscat(g_prefixAppData, L"\\MTuner\\");
+					strcat(g_prefixAppData, "\\MTuner\\");
 				else
 					g_prefixAppData[0] = 0;
 			}

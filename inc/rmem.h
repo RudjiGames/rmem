@@ -227,7 +227,7 @@ extern "C" {
 
 	/* Initialize memory library and set which type of hook to use */
 	/* _data is used internally, pass 0 if manually instrumenting */
-	void rmemInit(void* _data, const char* _rootPathOverride = 0);
+	void rmemInit(const char* _rootPathOverride);
 
 	/* If SDK was build with RMEM_ENABLE_DELAYED_CAPTURE defined to 1 (see rmem_config.h for details) */
 	/* then no allocation tracking is done until stil function is called */
