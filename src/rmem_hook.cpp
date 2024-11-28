@@ -15,7 +15,14 @@
 #pragma warning (push)
 #pragma warning (disable:4996) // This function is deprecated and unsafe
 #endif
+#if RMEM_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include "../3rd/lz4/lz4.c"
+#if RMEM_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif
 #if RMEM_COMPILER_MSVC
 #pragma warning (pop)
 #endif
