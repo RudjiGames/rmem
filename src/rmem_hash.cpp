@@ -82,14 +82,6 @@ static uint32_t UNALIGNED_LOAD32(const char* p)
 #define uint64_in_expected_order(x) (x)
 #endif
 
-#if !defined(LIKELY)
-#if HAVE_BUILTIN_EXPECT
-#define LIKELY(x) (__builtin_expect(!!(x), 1))
-#else
-#define LIKELY(x) (x)
-#endif
-#endif
-
 static uint64_t Fetch64(const char* p) {
 	return uint64_in_expected_order(UNALIGNED_LOAD64(p));
 }
