@@ -8,8 +8,11 @@
 #include "rmem_utils.h"
 #include "rmem_enums.h"
 
+#include "../3rd/lz4-r191/lz4.h"
 #if RMEM_ENABLE_LZ4_COMPRESSION
+#if !RMEM_LZ4_NO_DEFINE
 #include "../3rd/lz4-r191/lz4.c"
+#endif // !RMEM_LZ4_NO_DEFINE
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
 
 #if RMEM_PLATFORM_WINDOWS

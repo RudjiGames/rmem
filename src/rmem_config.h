@@ -30,6 +30,10 @@
 /// to find the right balance between capture size and performance impact.
 #define RMEM_ENABLE_LZ4_COMPRESSION				1
 
+/// Set to zero to disable linking lz4 functions in case you're
+/// already statically linking against them
+#define	RMEM_LZ4_NO_DEFINE						0
+
 /// If enabled, no allocation tracking is done until rmemStartCapture() is called
 #define RMEM_ENABLE_DELAYED_CAPTURE				0
 
