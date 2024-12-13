@@ -30,7 +30,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* RMEM_PLATFORM_WINDOWS */
 
-#if defined(__GNUC__) && !RMEM_PLATFORM_OSX
+#if (defined(__GNUC__) || defined(__clang__)) && !RMEM_PLATFORM_OSX
 
 #if RMEM_PLATFORM_WINDOWS
 	#define WINDOWS_LEAN_AND_MEAN
@@ -71,7 +71,7 @@ extern "C" {
 		extern "C" { extern size_t dlmalloc_usable_size(const void* p);	}
 		#define malloc_usable_size dlmalloc_usable_size
 	#else
-		extern "C" { extern size_t malloc_usable_size(const void* p);	}
+		extern "C" { extern size_t malloc_usable_size(const void* p); }
 	#endif
 #endif
 
@@ -236,13 +236,9 @@ extern "C" {
 	#define RMEM_GCC_ENTRY_WRAP_4
 #endif /* RMEM_NO_REALLOCALIGN */
 
-#endif /* defined(__GNUC__ ) && !RMEM_PLATFORM_OSX*/
-
 /*--------------------------------------------------------------------------
  * Program entry for link time binding to rmem/mtuner lib
  *------------------------------------------------------------------------*/
- 
-#if defined(__GNUC__) && !RMEM_PLATFORM_OSX
 
 	#if RMEM_PLATFORM_WINDOWS
 

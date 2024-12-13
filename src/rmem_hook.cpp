@@ -265,9 +265,13 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 		strcpy(m_fileName, "/app_home/");
 #endif // RMEM_PLATFORM_PS3
 
-#if RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
+#if RMEM_PLATFORM_PS4
 		strcpy(m_fileName, "/hostapp/");
-#endif // RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
+#endif // RMEM_PLATFORM_PS4
+
+#if RMEM_PLATFORM_PS5
+		strcpy(m_fileName, "/app0/");
+#endif // RMEM_PLATFORM_PS5
 
 #if RMEM_PLATFORM_XBOX360
 		strcpy(m_fileName, "game:\\");
