@@ -30,7 +30,7 @@
 /// to find the right balance between capture size and performance impact.
 #define RMEM_ENABLE_LZ4_COMPRESSION				1
 
-/// Set to zero to disable linking lz4 functions in case you're
+/// Set to one to disable linking lz4 functions in case you're
 /// already statically linking against them
 #define	RMEM_LZ4_NO_DEFINE						0
 
