@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------//
-/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// Copyright 2025 Milos Tosic. All Rights Reserved.                       ///
 /// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
 //--------------------------------------------------------------------------//
 
@@ -13,79 +13,95 @@ namespace rmem {
 #if RMEM_PLATFORM_WINDOWS || RMEM_PLATFORM_XBOX360 || RMEM_PLATFORM_XBOXONE
 	typedef CRITICAL_SECTION mtuner_mutex;
 
-	static inline void mtuner_mutex_init(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_init(mtuner_mutex* _mutex)
+	{
 		InitializeCriticalSection(_mutex);
 	}
 
-	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex)
+	{
 		DeleteCriticalSection(_mutex);
 	}
 
-	static inline void mtuner_mutex_lock(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_lock(mtuner_mutex* _mutex)
+	{
 		EnterCriticalSection(_mutex);
 	}
 
-	static inline int mtuner_mutex_trylock(mtuner_mutex* _mutex)	{
+	static inline int mtuner_mutex_trylock(mtuner_mutex* _mutex)
+	{
 		return TryEnterCriticalSection(_mutex) ? 0 : 1;
 	}
 
-	static inline void mtuner_mutex_unlock(mtuner_mutex* _mutex)	{
+	static inline void mtuner_mutex_unlock(mtuner_mutex* _mutex)
+	{
 		LeaveCriticalSection(_mutex);
 	}
 
 #elif RMEM_PLATFORM_LINUX || RMEM_PLATFORM_OSX || RMEM_PLATFORM_ANDROID || RMEM_PLATFORM_SWITCH
 	typedef pthread_mutex_t mtuner_mutex;
 
-	static inline void mtuner_mutex_init(mtuner_mutex* _mutex) {
-		pthread_mutex_init(_mutex, NULL);
+	static inline void mtuner_mutex_init(mtuner_mutex* _mutex)
+	{
+		pthread_mutex_init(_mutex, nullptr);
 	}
 
-	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex)
+	{
 		pthread_mutex_destroy(_mutex);
 	}
 
-	static inline void mtuner_mutex_lock(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_lock(mtuner_mutex* _mutex)
+	{
 		pthread_mutex_lock(_mutex);
 	}
 
-	static inline int mtuner_mutex_trylock(mtuner_mutex* _mutex) {
+	static inline int mtuner_mutex_trylock(mtuner_mutex* _mutex)
+	{
 		return pthread_mutex_trylock(_mutex);
 	}
 
-	static inline void mtuner_mutex_unlock(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_unlock(mtuner_mutex* _mutex)
+	{
 		pthread_mutex_unlock(_mutex);
 	}
 	
 #elif RMEM_PLATFORM_PS3
 	typedef sys_lwmutex_t mtuner_mutex;
 
-	static inline void mtuner_mutex_init(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_init(mtuner_mutex* _mutex)
+	{
 		sys_lwmutex_attribute_t	mutexAttr;
 		sys_lwmutex_attribute_initialize(mutexAttr);
 		mutexAttr.attr_recursive = SYS_SYNC_RECURSIVE;
 		sys_lwmutex_create(_mutex, &mutexAttr);
 	}
 
-	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex)
+	{
 		sys_lwmutex_destroy(_mutex);
 	}
 
-	static inline void mtuner_mutex_lock(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_lock(mtuner_mutex* _mutex)
+	{
 		sys_lwmutex_lock(_mutex, 0);
 	}
 
-	static inline int mtuner_mutex_trylock(mtuner_mutex* _mutex) {
+	static inline int mtuner_mutex_trylock(mtuner_mutex* _mutex)
+	{
 		return (sys_lwmutex_trylock(_mutex) == CELL_OK) ? 0 : 1;
 	}
 
-	static inline void mtuner_mutex_unlock(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_unlock(mtuner_mutex* _mutex)
+	{
 		sys_lwmutex_unlock(_mutex);
 	}
 
 #elif RMEM_PLATFORM_PS4 || RMEM_PLATFORM_PS5
 	typedef ScePthreadMutex mtuner_mutex;
 
-	static inline void mtuner_mutex_init(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_init(mtuner_mutex* _mutex)
+	{
 		ScePthreadMutexattr mutexAttr;
 		scePthreadMutexattrInit(&mutexAttr);
 		scePthreadMutexattrSettype(&mutexAttr, SCE_PTHREAD_MUTEX_RECURSIVE);
@@ -93,19 +109,23 @@ namespace rmem {
 		scePthreadMutexattrDestroy(&mutexAttr);
 	}
 
-	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_destroy(mtuner_mutex* _mutex)
+	{
 		scePthreadMutexDestroy(_mutex);
 	}
 
-	static inline void mtuner_mutex_lock(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_lock(mtuner_mutex* _mutex)
+	{
 		scePthreadMutexLock(_mutex);
 	}
 
-	static inline int mtuner_mutex_trylock(mtuner_mutex* _mutex) {
+	static inline int mtuner_mutex_trylock(mtuner_mutex* _mutex)
+	{
 		return (scePthreadMutexTrylock(_mutex) == 0) ? 0 : 1;
 	}
 
-	static inline void mtuner_mutex_unlock(mtuner_mutex* _mutex) {
+	static inline void mtuner_mutex_unlock(mtuner_mutex* _mutex)
+	{
 		scePthreadMutexUnlock(_mutex);
 	}
 	

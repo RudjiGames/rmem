@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------//
-/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// Copyright 2025 Milos Tosic. All Rights Reserved.                       ///
 /// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
 //--------------------------------------------------------------------------//
 
@@ -11,7 +11,6 @@
 
 #include "rmem_wrap_win.h"
 
-char g_prefixAppData[512];
 typedef HRESULT (WINAPI *fnSHGetFolderPathA)(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPSTR pszPath);
 
 #if !RMEM_COMPILER_GCC
@@ -163,7 +162,7 @@ BOOLEAN WINAPI detour_RtlValidateHeap(PVOID, ULONG, PVOID)
 HMODULE WINAPI detour_LoadLibraryA(LPCSTR _fileName)
 {
 	HMODULE ret = (CALL_ORIGINAL(LoadLibraryA)(_fileName));
-	if (ret != NULL)
+	if (ret != nullptr)
 	{
 		MODULEINFO info;
 		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
@@ -181,7 +180,7 @@ HMODULE WINAPI detour_LoadLibraryA(LPCSTR _fileName)
 HMODULE WINAPI detour_LoadLibraryW(LPCWSTR _fileName)
 {
 	HMODULE ret = (CALL_ORIGINAL(LoadLibraryW)(_fileName));
-	if (ret != NULL)
+	if (ret != nullptr)
 	{
 		MODULEINFO info;
 		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
@@ -199,7 +198,7 @@ HMODULE WINAPI detour_LoadLibraryW(LPCWSTR _fileName)
 HMODULE WINAPI detour_LoadLibraryExA(LPCSTR _fileName, HANDLE _file, DWORD _flags)
 {
 	HMODULE ret = (CALL_ORIGINAL(LoadLibraryExA)(_fileName, _file, _flags));
-	if (ret != NULL)
+	if (ret != nullptr)
 	{
 		MODULEINFO info;
 		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
@@ -217,7 +216,7 @@ HMODULE WINAPI detour_LoadLibraryExA(LPCSTR _fileName, HANDLE _file, DWORD _flag
 HMODULE WINAPI detour_LoadLibraryExW(LPCWSTR _fileName, HANDLE _file, DWORD _flags)
 {
 	HMODULE ret = (CALL_ORIGINAL(LoadLibraryExW)(_fileName, _file, _flags));
-	if (ret != NULL)
+	if (ret != nullptr)
 	{
 		MODULEINFO info;
 		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
@@ -235,7 +234,7 @@ HMODULE WINAPI detour_LoadLibraryExW(LPCWSTR _fileName, HANDLE _file, DWORD _fla
 HMODULE WINAPI detour_FreeLibrary(HMODULE _hLibModule)
 {
 	HMODULE ret = (CALL_ORIGINAL(FreeLibrary)(_hLibModule));
-	if (ret != NULL)
+	if (ret != nullptr)
 	{
 		MODULEINFO info;
 		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
@@ -253,7 +252,7 @@ HMODULE WINAPI detour_FreeLibrary(HMODULE _hLibModule)
 HMODULE WINAPI detour_FreeLibraryAndExitThread(HMODULE _hLibModule, DWORD _dwExitCode)
 {
 	HMODULE ret = (CALL_ORIGINAL(FreeLibraryAndExitThread)(_hLibModule, _dwExitCode));
-	if (ret != NULL)
+	if (ret != nullptr)
 	{
 		MODULEINFO info;
 		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
@@ -298,6 +297,7 @@ extern "C"
 
 		g_shouldProfile = RMEM_ALLOCATOR_NOPROFILING & _allocatorID ? false : true;
 
+		char g_prefixAppData[512];
 		g_prefixAppData[0] = 0;
 		HMODULE shelldll32 = ::LoadLibraryA("Shell32");
 		if (shelldll32)
@@ -305,7 +305,7 @@ extern "C"
 			fnSHGetFolderPathA fn = (fnSHGetFolderPathA)::GetProcAddress(shelldll32, "SHGetFolderPathA");
 			if (fn)
 			{
-				if (SUCCEEDED(fn(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, g_prefixAppData)))
+				if (SUCCEEDED(fn(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, g_prefixAppData)))
 					strcat(g_prefixAppData, "\\MTuner\\");
 				else
 					g_prefixAppData[0] = 0;

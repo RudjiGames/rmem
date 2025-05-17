@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------//
-/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// Copyright 2025 Milos Tosic. All Rights Reserved.                       ///
 /// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
 //--------------------------------------------------------------------------//
 
@@ -132,8 +132,8 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 #if RMEM_PLATFORM_WINDOWS || RMEM_PLATFORM_XBOXONE
 
 	#if RMEM_COMPILER_MSVC || RMEM_COMPILER_GCC || RMEM_COMPILER_CLANG
-		uint32_t numTraces = RtlCaptureStackBackTrace((ULONG)_skip, (ULONG)_numFrames, (PVOID*)_traces, NULL);
-		return numTraces ? numTraces : RtlCaptureStackBackTrace((ULONG)_skip, (ULONG)_numFrames, (PVOID*)_traces, NULL);
+		uint32_t numTraces = RtlCaptureStackBackTrace((ULONG)_skip, (ULONG)_numFrames, (PVOID*)_traces, nullptr);
+		return numTraces ? numTraces : RtlCaptureStackBackTrace((ULONG)_skip, (ULONG)_numFrames, (PVOID*)_traces, nullptr);
 	#else
 		#error "Unsupported compiler!"
 	#endif
@@ -146,7 +146,7 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 
 	count -= _skip;
 	uint32_t num = (count > _numFrames) ? _numFrames : count;
-	if (CELL_OK != cellDbgPpuThreadGetStackBackTrace(_skip, count, _traces, NULL))
+	if (CELL_OK != cellDbgPpuThreadGetStackBackTrace(_skip, count, _traces, nullptr))
 		return 0;
 
 	return num;

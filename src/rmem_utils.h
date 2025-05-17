@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------//
-/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// Copyright 2025 Milos Tosic. All Rights Reserved.                       ///
 /// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
 //--------------------------------------------------------------------------//
 
@@ -9,7 +9,6 @@
 #include "rmem_platform.h"
 
 #include <string.h> // memcpy
-#include <wchar.h>	// wcscat_s
 
 namespace rmem {
 
@@ -74,7 +73,9 @@ namespace rmem {
 		{
 			memcpy(&_bufferBase[_bufferPtr],_string,sizeof(char)*_len);
 			for (uint32_t i=0; i<sizeof(char)*_len; ++i)
+			{
 				_bufferBase[_bufferPtr+i] = _bufferBase[_bufferPtr+i] ^ _xor;
+			}
 			_bufferPtr += _len*sizeof(char);
 		}
 	}
@@ -88,7 +89,9 @@ namespace rmem {
 		{
 			memcpy(&_bufferBase[_bufferPtr],_string,sizeof(wchar_t)*_len);
 			for (uint32_t i=0; i<sizeof(wchar_t)*_len; ++i)
+			{
 				_bufferBase[_bufferPtr+i] = _bufferBase[_bufferPtr+i] ^ _xor;
+			}
 			_bufferPtr += _len*sizeof(wchar_t);
 		}
 	}

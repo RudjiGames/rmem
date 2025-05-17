@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------//
-/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// Copyright 2025 Milos Tosic. All Rights Reserved.                       ///
 /// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
 //--------------------------------------------------------------------------//
 
@@ -27,8 +27,7 @@ namespace rmem {
 		uint8_t*	m_excessBufferPtr;
 		size_t		m_bufferBytesWritten;
 		uint8_t*	m_bufferPtr;
-		uint8_t		m_bufferData[BufferSize * 2];
-		uint8_t		m_excessBuffer[BufferSize];
+		uint8_t		m_bufferData[BufferSize * 3];
 #if RMEM_ENABLE_LZ4_COMPRESSION
 		uint8_t		m_bufferCompressed[BufferSize];
 #endif // RMEM_ENABLE_LZ4_COMPRESSION

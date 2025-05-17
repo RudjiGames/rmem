@@ -1,10 +1,9 @@
 //--------------------------------------------------------------------------//
-/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// Copyright 2025 Milos Tosic. All Rights Reserved.                       ///
 /// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
 //--------------------------------------------------------------------------//
 
 #include "rmem_utils.h"
-
 #if RMEM_PLATFORM_WINDOWS
 #include "rmem_wrap_win.h"
 #include <TlHelp32.h>
@@ -80,7 +79,7 @@ namespace rmem {
 		const uint8_t charSize = 2;
 
 		HRESULT error;
-		PDM_WALK_MODULES pWalkMod = NULL;
+		PDM_WALK_MODULES pWalkMod = nullptr;
 		DMN_MODLOAD modLoad;
 		size_t buffPtr = 0;
 		addVarToBuffer(charSize, _buffer, buffPtr);

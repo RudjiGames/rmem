@@ -1,11 +1,10 @@
 //--------------------------------------------------------------------------//
-/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// Copyright 2025 Milos Tosic. All Rights Reserved.                       ///
 /// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
 //--------------------------------------------------------------------------//
 
 #include "rmem_platform.h"
 #include "rmem_hook.h"
-#include "rmem_utils.h"
 #include "rmem_enums.h"
 
 #include "../3rd/lz4/lz4.h"
@@ -39,7 +38,7 @@ typedef HRESULT (WINAPI *fnSHGetFolderPathW)(HWND hwnd, int csidl, HANDLE hToken
 #include <time.h>	//< time for composing output file name
 
 template <typename CHAR>
-static CHAR* printNumReverse(CHAR* _dst, int _num)
+static inline CHAR* printNumReverse(CHAR* _dst, int _num)
 {
 	while (_num)
 	{
@@ -107,15 +106,21 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 	m_bufferPtr	= m_bufferData;
 
 	for (uint32_t i=0; i<HashArraySize; ++i)
+	{
 		m_stackTraceHashes[i] = 0;
+	}
 
 	for (uint32_t i=0; i<HashArraySize; ++i)
+	{
 		for (uint32_t j=0; j<RMEM_STACK_TRACE_MAX; ++j)
+		{
 			m_stackTraces[i][j] = 0;
+		}
+	}
 
-	m_file					= NULL;
+	m_file					= nullptr;
 	m_bufferBytesWritten	= 0;
-	m_excessBufferPtr		= NULL;
+	m_excessBufferPtr		= nullptr;
 	m_excessBufferSize		= 0;
 
 #if RMEM_LITTLE_ENDIAN
@@ -210,7 +215,9 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 	{
 		size_t len = strlen(_rootPathOverride) + 1; // include nil
 		for (size_t s=0; s<len; ++s)
+		{
 			m_fileName[s] = _rootPathOverride[s];
+		}
 	}
 	else
 	{
@@ -221,7 +228,7 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 			fnSHGetFolderPathW fn = reinterpret_cast<fnSHGetFolderPathW>(reinterpret_cast<void*>(::GetProcAddress(shelldll32, "SHGetFolderPathW")));
 			if (fn)
 			{
-				if (SUCCEEDED(fn(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, m_fileName)))
+				if (SUCCEEDED(fn(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, m_fileName)))
 				{
 					wcscat_s(m_fileName, 512, L"\\");
 					::CreateDirectoryW(m_fileName, 0);
@@ -230,16 +237,20 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 				}
 			}
 			else
+			{
 				m_fileName[0] = 0;
+			}
 
 			FreeLibrary(shelldll32);
 		}
 		else
+		{
 			wcscpy_s(m_fileName, 512, L"");
+		}
 	}
 
 	wchar_t currFile[512];
-	GetModuleFileNameW(NULL, currFile, 512);
+	GetModuleFileNameW(nullptr, currFile, 512);
 	size_t len = wcslen(currFile);
 	while ((currFile[len] != L'\\') && (currFile[len] != L'/'))
 		--len;
@@ -310,7 +321,7 @@ void MemoryHook::flush()
 	if (m_file)
 	{
 		fclose(m_file);
-		m_file = NULL;
+		m_file = nullptr;
 	}
 }
 
@@ -596,7 +607,7 @@ void MemoryHook::registerModule(const char* _name, uint64_t _base, uint32_t _siz
 
 	uint8_t Marker = LogMarkers::Module;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
-	Marker = 1;
+	Marker = 1; // char
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
@@ -616,7 +627,7 @@ void MemoryHook::registerModule(const wchar_t* _name, uint64_t _base, uint32_t _
 
 	uint8_t Marker = LogMarkers::Module;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
-	Marker = 2;
+	Marker = 2; // wchar_t
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
@@ -636,7 +647,7 @@ void MemoryHook::unregisterModule(const char* _name, uint64_t _base, uint32_t _s
 
 	uint8_t Marker = LogMarkers::ModuleUnload;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
-	Marker = 1;
+	Marker = 1; // char
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
@@ -656,7 +667,7 @@ void MemoryHook::unregisterModule(const wchar_t* _name, uint64_t _base, uint32_t
 
 	uint8_t Marker = LogMarkers::ModuleUnload;
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
-	Marker = 2;
+	Marker = 2; // wchar_t
 	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
 	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
 	addVarToBuffer(_base, tmpBuffer, tmpBufferPtr);
@@ -690,10 +701,12 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr
 	if (m_stackTraceHashes[stackIndex] == _stackHash)
 	{
 		/// check for hash collision
-		uint32_t i;
-		for (i=0; i<_numFrames; ++i)
+		uint32_t i = 0;
+		for (; i<_numFrames; ++i)
+		{
 			if (m_stackTraces[stackIndex][i] != _stackTrace[i])
 				break;
+		}
 
 		if (i != _numFrames)
 		{
@@ -716,11 +729,15 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr
 
 			// ...and save it for comparing later
 			for (uint32_t i=0; i<_numFrames; ++i)
+			{
 				m_stackTraces[stackIndex][i] = _stackTrace[i];
+			}
 		}
 		else
+		{
 			/// different hash - write full stack
 			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
+		}
 	}
 
 #else //RMEM_STACK_TRACE_ENABLE_HASHING
@@ -737,13 +754,17 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 
 #if	RMEM_STACK_TRACE_ENABLE_HASHING
 	if (_stackTrace)
+	{
 		stackHash = (uint32_t)hashStackTrace(_stackTrace, _numFrames);
+	}
 #endif // RMEM_STACK_TRACE_ENABLE_HASHING
 
 	m_mutexInternalBufferPtrs.lock();
 
 	if (_stackTrace)
+	{
 		addStackTrace((uint8_t*)_ptr, _size, _stackTrace, _numFrames, stackHash);
+	}
 
 	uint8_t* writeBuffer = 0;
 
@@ -752,9 +773,13 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 		memcpy(&m_bufferPtr[m_bufferBytesWritten], _ptr, _size);
 
 		if (_size + m_bufferBytesWritten == MemoryHook::BufferSize)
+		{
 			writeBuffer = doubleBuffer();
+		}
 		else
+		{
 			m_bufferBytesWritten += _size;
+		}
 	}
 	else
 	{
@@ -771,7 +796,9 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 	}
 
 	if (writeBuffer)
+	{
 		writeToFile(writeBuffer, MemoryHook::BufferSize);
+	}
 
 	m_mutexInternalBufferPtrs.unlock();
 }
@@ -801,14 +828,14 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		if (m_excessBufferPtr)
 		{
 #if RMEM_ENABLE_LZ4_COMPRESSION
-			uint32_t compSize = LZ4_compress_default((const char*)m_excessBuffer, (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
+			uint32_t compSize = LZ4_compress_default((const char*)&m_bufferData[BufferSize * 2], (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
 			fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 			fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 			fwrite(m_bufferCompressed, compSize, 1, m_file);
 #else
 			fwrite(m_excessBuffer, m_excessBufferSize, 1, m_file);
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
-			m_excessBufferPtr	= NULL;
+			m_excessBufferPtr	= nullptr;
 			m_excessBufferSize	= 0;
 		}
 
@@ -830,8 +857,8 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 			return;
 		}
 
-		m_excessBufferPtr = m_excessBuffer;
-		memcpy(&m_excessBuffer[m_excessBufferSize], _ptr, _bytesToWrite);
+		m_excessBufferPtr = &m_bufferData[BufferSize * 2];
+		memcpy(&m_bufferData[BufferSize * 2 + m_excessBufferSize], _ptr, _bytesToWrite);
 		m_excessBufferSize += _bytesToWrite;
 	}
 	

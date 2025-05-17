@@ -1,15 +1,14 @@
 //--------------------------------------------------------------------------//
-/// Copyright 2024 Milos Tosic. All Rights Reserved.                       ///
+/// Copyright 2025 Milos Tosic. All Rights Reserved.                       ///
 /// License: http://www.opensource.org/licenses/BSD-2-Clause               ///
 //--------------------------------------------------------------------------//
 
 #include "../inc/rmem.h"
 #include "rmem_hook.h"
-#include "rmem_utils.h"
 
 rmem::MemoryHook*& getMemoryHookPtr()
 {
-	static rmem::MemoryHook* ptr = NULL;
+	static rmem::MemoryHook* ptr = nullptr;
 	return ptr;
 }
 
@@ -56,7 +55,7 @@ extern "C" {
 	void rmemInit(const char* _rootPathOverride)
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		if (hook != NULL)
+		if (hook != nullptr)
 			return;
 
 		uint8_t* buff = getMemoryHookBuffer();
@@ -74,11 +73,11 @@ extern "C" {
 	void rmemShutDown()
 	{
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
-		if (hook == NULL)
+		if (hook == nullptr)
 			return;
 
 		hook->~MemoryHook();
-		hook = NULL;
+		hook = nullptr;
 	}
 
 	//--------------------------------------------------------------------------
