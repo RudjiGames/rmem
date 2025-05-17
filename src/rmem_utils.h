@@ -8,7 +8,8 @@
 
 #include "rmem_platform.h"
 
-#include <string.h> // memcpy
+#include <string.h> // memcpy, strlen
+#include <wchar.h>  // wcslen
 
 namespace rmem {
 
