@@ -51,6 +51,13 @@ size_t getReallocOverhead(void* _ptr)
 	return 8; // fake fixed overhead
 }
 
+#if RTM_COMPILER_CLANG
+// disable warning: pointer ‘prevPtr’ used after ‘void* realloc
+// This is intentional behaviour here
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wuse-after-free"
+#endif
+
 struct Allocator
 {
 	static void* s_realloc(void* _ptr, size_t _size)
@@ -68,6 +75,10 @@ struct Allocator
 		rmemFree(0, prevPtr);
 	}
 };
+
+#if RTM_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif
 
 enum { ALLOC_ARRAY_SIZE = 1024*10 };
 
