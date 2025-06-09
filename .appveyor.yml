@@ -64,7 +64,7 @@ for:
       - build\tools\bin\windows\genie.exe --file=rmem\genie\genie.lua vs2022
       
     build: 
-      project: rmem\.build\windows\vs2022\rmem\projects\rmem.sln
+      project: .build\windows\vs2022\rmem\projects\rmem.sln
 
 # ======================================
 # Linux
