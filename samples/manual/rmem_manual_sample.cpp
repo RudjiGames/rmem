@@ -51,7 +51,7 @@ size_t getReallocOverhead(void* _ptr)
 	return 8; // fake fixed overhead
 }
 
-#if defined(__clang__)
+#if defined(__clang__) && !RTM_PLATFORM_OSX
 // disable warning: pointer ‘prevPtr’ used after ‘void* realloc
 // This is intentional behaviour here
 #pragma clang diagnostic push
