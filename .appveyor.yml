@@ -61,7 +61,7 @@ for:
       - git clone --depth 1 https://github.com/RudjiGames/build   build
      
     install:
-      - build\tools\bin\windows\genie.exe --file=rmem\genie\genie.lua vs2022
+      - build\tools\bin\windows\genie.exe --file=rmem\genie\genie.lua --with-samples vs2022
       
     build: 
       project: .build\windows\vs2022\rmem\projects\rmem.sln
@@ -84,7 +84,7 @@ for:
       - cd GENie && make && cd ..
 
     install:
-      - ./GENie/bin/linux/genie --file=rmem/genie/genie.lua --gcc=linux-gcc gmake
+      - ./GENie/bin/linux/genie --file=rmem/genie/genie.lua --with-samples --gcc=linux-gcc gmake
   
     build_script:
       - cd ./.build/linux/linux-gcc/rmem/projects/
@@ -108,7 +108,7 @@ for:
       - cd GENie && make && cd ..
     
     install:
-      - ./GENie/bin/darwin/genie --file=rmem/genie/genie.lua --gcc=osx-x64 gmake
+      - ./GENie/bin/darwin/genie --file=rmem/genie/genie.lua --with-samples --gcc=osx-x64 gmake
     
     build_script:
       - cd ./.build/osx/clang/rmem/projects/
