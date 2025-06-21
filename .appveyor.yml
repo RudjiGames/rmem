@@ -59,7 +59,10 @@ for:
       - git clone https://github.com/RudjiGames/rmem    rmem
       - git clone https://github.com/RudjiGames/rbase   rbase
       - git clone https://github.com/RudjiGames/build   build
-     
+      - git clone https://github.com/bkaradzic/bx.git   bx
+      - git clone https://github.com/bkaradzic/bimg.git bimg
+      - git clone https://github.com/bkaradzic/bgfx.git bgfx
+      
     install:
       - build\tools\bin\windows\genie.exe --file=rmem\genie\genie.lua --with-samples vs2022
       
@@ -80,6 +83,9 @@ for:
       - git clone https://github.com/RudjiGames/rmem    rmem
       - git clone https://github.com/RudjiGames/rbase   rbase
       - git clone https://github.com/RudjiGames/build   build
+      - git clone https://github.com/bkaradzic/bx.git   bx
+      - git clone https://github.com/bkaradzic/bimg.git bimg
+      - git clone https://github.com/bkaradzic/bgfx.git bgfx
       - git clone https://github.com/bkaradzic/GENie    GENie		# build GENie from source: `GLIBC_2.29' not found
       - cd GENie && make && cd ..
 
@@ -104,6 +110,9 @@ for:
       - git clone https://github.com/RudjiGames/rmem rmem
       - git clone https://github.com/RudjiGames/rbase rbase
       - git clone https://github.com/RudjiGames/build build
+      - git clone https://github.com/bkaradzic/bx.git   bx
+      - git clone https://github.com/bkaradzic/bimg.git bimg
+      - git clone https://github.com/bkaradzic/bgfx.git bgfx      
       - git clone https://github.com/bkaradzic/GENie GENie  # build GENie from source: we don't know the target CPU, can't use ARM binary from 'build'
       - cd GENie && make && cd ..
     
