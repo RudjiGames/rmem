@@ -55,10 +55,10 @@ for:
       - job_name: Windows
   
     init:
-      - git clone --recursive --depth 1 https://github.com/RudjiGames/rapp    rapp
-      - git clone --depth 1 https://github.com/RudjiGames/rmem    rmem
-      - git clone --depth 1 https://github.com/RudjiGames/rbase   rbase
-      - git clone --depth 1 https://github.com/RudjiGames/build   build
+      - git clone --recursive https://github.com/RudjiGames/rapp    rapp
+      - git clone https://github.com/RudjiGames/rmem    rmem
+      - git clone https://github.com/RudjiGames/rbase   rbase
+      - git clone https://github.com/RudjiGames/build   build
      
     install:
       - build\tools\bin\windows\genie.exe --file=rmem\genie\genie.lua --with-samples vs2022
@@ -76,11 +76,11 @@ for:
       - job_name: Linux
 
     init:
-      - git clone --recursive --depth 1 https://github.com/RudjiGames/rapp    rapp
-      - git clone --depth 1 https://github.com/RudjiGames/rmem    rmem
-      - git clone --depth 1 https://github.com/RudjiGames/rbase   rbase
-      - git clone --depth 1 https://github.com/RudjiGames/build   build
-      - git clone --depth 1 https://github.com/bkaradzic/GENie    GENie		# build GENie from source: `GLIBC_2.29' not found
+      - git clone --recursive https://github.com/RudjiGames/rapp    rapp
+      - git clone https://github.com/RudjiGames/rmem    rmem
+      - git clone https://github.com/RudjiGames/rbase   rbase
+      - git clone https://github.com/RudjiGames/build   build
+      - git clone https://github.com/bkaradzic/GENie    GENie		# build GENie from source: `GLIBC_2.29' not found
       - cd GENie && make && cd ..
 
     install:
@@ -100,11 +100,11 @@ for:
       - job_name: OSX
 
     init:
-      - git clone --recursive --depth 1 https://github.com/RudjiGames/rapp    rapp
-      - git clone --depth 1 https://github.com/RudjiGames/rmem rmem
-      - git clone --depth 1 https://github.com/RudjiGames/rbase rbase
-      - git clone --depth 1 https://github.com/RudjiGames/build build
-      - git clone --depth 1 https://github.com/bkaradzic/GENie GENie  # build GENie from source: we don't know the target CPU, can't use ARM binary from 'build'
+      - git clone --recursive https://github.com/RudjiGames/rapp    rapp
+      - git clone https://github.com/RudjiGames/rmem rmem
+      - git clone https://github.com/RudjiGames/rbase rbase
+      - git clone https://github.com/RudjiGames/build build
+      - git clone https://github.com/bkaradzic/GENie GENie  # build GENie from source: we don't know the target CPU, can't use ARM binary from 'build'
       - cd GENie && make && cd ..
     
     install:
