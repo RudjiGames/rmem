@@ -12,7 +12,7 @@
 
 /// Size of the stack trace hash table, smaller hash table size reduces memory
 /// overhead of profiling but increases likelihood of collisions.
-#define RMEM_STACK_TRACE_HASH_TABLE_SIZE		4 * 1024 * 1024
+#define RMEM_STACK_TRACE_HASH_TABLE_SIZE		(4 * 1024 * 1024)
 
 /// Maximum depth of stack trace for captures, for code bases with very deep 
 /// call-stacks this value should be increased in order to build stack trace
@@ -41,6 +41,6 @@
 #define RMEM_FLUSH_FILE_WRITES					1
 
 /// Buffers size
-#define RMEM_BUFFER_SIZE						4 * 1024 * 1024
+#define RMEM_BUFFER_SIZE						(4 * 1024 * 1024)
 
 #endif // RMEM_CONFIG_H
