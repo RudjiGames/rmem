@@ -255,12 +255,17 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 
 	wchar_t currFile[512];
 	GetModuleFileNameW(nullptr, currFile, 512);
-	size_t len = wcslen(currFile);
-	while ((currFile[len] != L'\\') && (currFile[len] != L'/'))
+	int len = (int)wcslen(currFile);
+	while ((len > 0) && (currFile[len] != L'\\') && (currFile[len] != L'/'))
+	{
 		--len;
+	}
 	wchar_t* name = &currFile[len+1];
 	wchar_t* endName = wcsstr(name, L".");
-	*endName = L'\0';
+	if (endName)
+	{
+		*endName = L'\0';
+	}
 	wcscat_s(m_fileName, 512, name);
 #else
 	char secBuff[256];
