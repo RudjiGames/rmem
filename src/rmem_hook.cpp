@@ -40,6 +40,10 @@ typedef HRESULT (WINAPI *fnSHGetFolderPathW)(HWND hwnd, int csidl, HANDLE hToken
 template <typename CHAR>
 static inline CHAR* printNumReverse(CHAR* _dst, int _num)
 {
+	if (_num == 0)
+	{
+		*_dst-- = CHAR('0');
+	}
 	while (_num)
 	{
 		*_dst-- = CHAR('0') + _num % 10;

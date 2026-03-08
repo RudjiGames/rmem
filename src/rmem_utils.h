@@ -18,6 +18,7 @@ namespace rmem {
 	inline uint32_t uint32_cnttzl(uint32_t _val)
 	{
 #if RMEM_COMPILER_MSVC && RMEM_PLATFORM_WINDOWS
+		if (!_val) return 32;
 		unsigned long index;
 		_BitScanForward(&index, _val);
 		return index;

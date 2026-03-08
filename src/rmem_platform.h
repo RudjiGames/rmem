@@ -183,9 +183,10 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 	if (_skip >= numTraces)
 		return 0;
 	const uint32_t retTraces = numTraces - _skip;
-	for (uint32_t i=0; i<retTraces && i<_numFrames; ++i)
+	uint32_t numToCopy = retTraces < _numFrames ? retTraces : _numFrames;
+	for (uint32_t i=0; i<numToCopy; ++i)
 		_traces[i] = (uintptr_t)trace[i+_skip];
-	return retTraces;
+	return numToCopy;
 
 #elif RMEM_PLATFORM_XBOX360
 	void* trace[256];
