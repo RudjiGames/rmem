@@ -842,7 +842,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 			fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 			fwrite(m_bufferCompressed, compSize, 1, m_file);
 #else
-			fwrite(m_excessBuffer, m_excessBufferSize, 1, m_file);
+			fwrite(m_excessBufferPtr, m_excessBufferSize, 1, m_file);
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
 			m_excessBufferPtr	= nullptr;
 			m_excessBufferSize	= 0;

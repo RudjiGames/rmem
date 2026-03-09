@@ -43,8 +43,8 @@ typedef HMODULE	(WINAPI *fn_LoadLibraryA)(LPCSTR _fileName);
 typedef HMODULE	(WINAPI *fn_LoadLibraryW)(LPCWSTR _fileName);
 typedef HMODULE	(WINAPI *fn_LoadLibraryExA)(LPCSTR _fileName, HANDLE _file, DWORD _flags);
 typedef HMODULE	(WINAPI *fn_LoadLibraryExW)(LPCWSTR _fileName, HANDLE _file, DWORD _flags);
-typedef HMODULE	(WINAPI *fn_FreeLibrary)(HMODULE _hLibModule);
-typedef HMODULE	(WINAPI *fn_FreeLibraryAndExitThread)(HMODULE _hLibModule, DWORD _dwExitCode);
+typedef BOOL	(WINAPI *fn_FreeLibrary)(HMODULE _hLibModule);
+typedef void	(WINAPI *fn_FreeLibraryAndExitThread)(HMODULE _hLibModule, DWORD _dwExitCode);
 typedef void	(WINAPI *fn_exit)(int _code);
 
 #define FN_ORIGINAL(name)			\
@@ -103,7 +103,7 @@ static inline uint32_t RtlGetOverhead(size_t _size)
 	}
 	 
 	const uint32_t granularityMask = (uint32_t)(sizeof(void*) * 2) - 1; // 32bit - 8 bytes granularity, 64bit 16 bytes
-	const uint32_t extraBytes = (_size - 1) & granularityMask;
+	const uint32_t extraBytes = (_size > 0) ? ((_size - 1) & granularityMask) : 0;
 	const uint32_t overhead = granularityMask - extraBytes;
 	return overheadPerBlock + overhead;
 }
@@ -231,40 +231,34 @@ HMODULE WINAPI detour_LoadLibraryExW(LPCWSTR _fileName, HANDLE _file, DWORD _fla
 	return ret;
 }
 
-HMODULE WINAPI detour_FreeLibrary(HMODULE _hLibModule)
+BOOL WINAPI detour_FreeLibrary(HMODULE _hLibModule)
 {
-	HMODULE ret = (CALL_ORIGINAL(FreeLibrary)(_hLibModule));
-	if (ret != nullptr)
+	if (_hLibModule != nullptr && g_shouldProfile)
 	{
 		MODULEINFO info;
-		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
-			return ret;
-		wchar_t fullPath[1024];
-		if (0 == GetModuleFileNameW(ret, fullPath, 1024))
-			return ret;
-
-		if (g_shouldProfile)
-			rmemRemoveModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+		if (0 != sFn_getModuleInformation(GetCurrentProcess(), _hLibModule, &info, sizeof(MODULEINFO)))
+		{
+			wchar_t fullPath[1024];
+			if (0 != GetModuleFileNameW(_hLibModule, fullPath, 1024))
+				rmemRemoveModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+		}
 	}
-	return ret;
+	return (CALL_ORIGINAL(FreeLibrary)(_hLibModule));
 }
 
-HMODULE WINAPI detour_FreeLibraryAndExitThread(HMODULE _hLibModule, DWORD _dwExitCode)
+void WINAPI detour_FreeLibraryAndExitThread(HMODULE _hLibModule, DWORD _dwExitCode)
 {
-	HMODULE ret = (CALL_ORIGINAL(FreeLibraryAndExitThread)(_hLibModule, _dwExitCode));
-	if (ret != nullptr)
+	if (_hLibModule != nullptr && g_shouldProfile)
 	{
 		MODULEINFO info;
-		if (0 == sFn_getModuleInformation(GetCurrentProcess(), ret, &info, sizeof(MODULEINFO)))
-			return ret;
-		wchar_t fullPath[1024];
-		if (0 == GetModuleFileNameW(ret, fullPath, 1024))
-			return ret;
-
-		if (g_shouldProfile)
-			rmemRemoveModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+		if (0 != sFn_getModuleInformation(GetCurrentProcess(), _hLibModule, &info, sizeof(MODULEINFO)))
+		{
+			wchar_t fullPath[1024];
+			if (0 != GetModuleFileNameW(_hLibModule, fullPath, 1024))
+				rmemRemoveModuleW(fullPath, (uint64_t)info.lpBaseOfDll, (uint32_t)info.SizeOfImage);
+		}
 	}
-	return ret;
+	(CALL_ORIGINAL(FreeLibraryAndExitThread)(_hLibModule, _dwExitCode));
 }
 
 bool g_linkerBased;
@@ -319,6 +313,7 @@ extern "C"
 		CREATE_HOOK(hntdll32, RtlFreeHeap);
 		CREATE_HOOK(hntdll32, RtlAllocateHeap);
 		CREATE_HOOK(hntdll32, RtlReAllocateHeap);
+		CREATE_HOOK(hntdll32, RtlValidateHeap);
 
 		CREATE_HOOK(kerneldll32, LoadLibraryA);
 		CREATE_HOOK(kerneldll32, LoadLibraryW);

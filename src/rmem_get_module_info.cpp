@@ -25,6 +25,7 @@ namespace rmem {
 		if (snapshot != INVALID_HANDLE_VALUE)
 		{
 			MODULEENTRY32W me;
+			me.dwSize = sizeof(MODULEENTRY32W);
 			BOOL cap = Module32FirstW(snapshot, &me);
 			if (!cap)
 			{
@@ -41,7 +42,7 @@ namespace rmem {
 						MODULEINFO mi;
 						sFn_getModuleInformation(GetCurrentProcess(), hMods[i], &mi, sizeof(mi));
 
-						if (sFn_getModuleFileNameExW(GetCurrentProcess(), hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+						if (sFn_getModuleFileNameExW(GetCurrentProcess(), hMods[i], szModName, sizeof(szModName) / sizeof(wchar_t)))
 						{
 							uint64_t modBase = (uint64_t)mi.lpBaseOfDll;
 							uint64_t modSize = (uint64_t)mi.SizeOfImage;
@@ -122,18 +123,18 @@ namespace rmem {
 			if (strstr(buff, "r-xp"))
 			{
 				size_t len = strlen(buff);
-				buff[8] = 0;
-				uint64_t modBase	= strtoul(buff, 0, 16);
-				uint64_t modEnd		= strtoul(buff+9, 0, 16);
-
 				char* modName = buff + len;
-				while (*modName != ' ')
+				while (modName > buff && *modName != ' ')
 				{
 					if ((*modName == '\n') || (*modName == '\r'))
 						*modName = '\0';
 					--modName;
 				}
 				++modName;
+
+				buff[8] = 0;
+				uint64_t modBase	= strtoul(buff, 0, 16);
+				uint64_t modEnd		= strtoul(buff+9, 0, 16);
 
 				addStrToBuffer(modName, _buffer, buffPtr, 0x23);
 				addVarToBuffer(modBase, _buffer, buffPtr);
