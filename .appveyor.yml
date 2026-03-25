@@ -90,7 +90,7 @@ for:
       - cd GENie && make && cd ..
 
     install:
-      - ./GENie/bin/linux/genie --file=rmem/genie/genie.lua --with-samples --gcc=linux-gcc gmake
+      - ./GENie/bin/linux/genie --file=rmem/scripts/genie.lua --with-samples --gcc=linux-gcc gmake
   
     build_script:
       - cd ./.zidar/linux/linux-gcc/rmem/projects/
@@ -117,7 +117,7 @@ for:
       - cd GENie && make && cd ..
     
     install:
-      - ./GENie/bin/darwin/genie --file=rmem/genie/genie.lua --with-samples --gcc=osx-x64 gmake
+      - ./GENie/bin/darwin/genie --file=rmem/scripts/genie.lua --with-samples --gcc=osx-x64 gmake
     
     build_script:
       - cd ./.zidar/osx/clang/rmem/projects/
