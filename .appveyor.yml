@@ -64,7 +64,7 @@ for:
       - git clone https://github.com/bkaradzic/bgfx.git bgfx
       
     install:
-      - zidar\tools\bin\windows\genie.exe --file=rmem\genie\genie.lua --with-samples vs2022
+      - zidar\tools\bin\windows\genie.exe --file=rmem\scripts\genie.lua --with-samples vs2022
       
     build: 
       project: .zidar\windows\vs2022\rmem\projects\rmem.sln
