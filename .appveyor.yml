@@ -58,16 +58,16 @@ for:
       - git clone --recursive https://github.com/RudjiGames/rapp    rapp
       - git clone https://github.com/RudjiGames/rmem    rmem
       - git clone https://github.com/RudjiGames/rbase   rbase
-      - git clone https://github.com/RudjiGames/build   build
+      - git clone https://github.com/RudjiGames/zidar   zidar
       - git clone https://github.com/bkaradzic/bx.git   bx
       - git clone https://github.com/bkaradzic/bimg.git bimg
       - git clone https://github.com/bkaradzic/bgfx.git bgfx
       
     install:
-      - build\tools\bin\windows\genie.exe --file=rmem\genie\genie.lua --with-samples vs2022
+      - zidar\tools\bin\windows\genie.exe --file=rmem\genie\genie.lua --with-samples vs2022
       
     build: 
-      project: .build\windows\vs2022\rmem\projects\rmem.sln
+      project: .zidar\windows\vs2022\rmem\projects\rmem.sln
 
 # ======================================
 # Linux
@@ -82,7 +82,7 @@ for:
       - git clone --recursive https://github.com/RudjiGames/rapp    rapp
       - git clone https://github.com/RudjiGames/rmem    rmem
       - git clone https://github.com/RudjiGames/rbase   rbase
-      - git clone https://github.com/RudjiGames/build   build
+      - git clone https://github.com/RudjiGames/zidar   zidar
       - git clone https://github.com/bkaradzic/bx.git   bx
       - git clone https://github.com/bkaradzic/bimg.git bimg
       - git clone https://github.com/bkaradzic/bgfx.git bgfx
@@ -93,7 +93,7 @@ for:
       - ./GENie/bin/linux/genie --file=rmem/genie/genie.lua --with-samples --gcc=linux-gcc gmake
   
     build_script:
-      - cd ./.build/linux/linux-gcc/rmem/projects/
+      - cd ./.zidar/linux/linux-gcc/rmem/projects/
       - make config=${buildcfg}
 
 # ======================================
@@ -109,7 +109,7 @@ for:
       - git clone --recursive https://github.com/RudjiGames/rapp    rapp
       - git clone https://github.com/RudjiGames/rmem rmem
       - git clone https://github.com/RudjiGames/rbase rbase
-      - git clone https://github.com/RudjiGames/build build
+      - git clone https://github.com/RudjiGames/zidar zidar
       - git clone https://github.com/bkaradzic/bx.git   bx
       - git clone https://github.com/bkaradzic/bimg.git bimg
       - git clone https://github.com/bkaradzic/bgfx.git bgfx      
@@ -120,5 +120,5 @@ for:
       - ./GENie/bin/darwin/genie --file=rmem/genie/genie.lua --with-samples --gcc=osx-x64 gmake
     
     build_script:
-      - cd ./.build/osx/clang/rmem/projects/
+      - cd ./.zidar/osx/clang/rmem/projects/
       - make config=${buildcfg}
