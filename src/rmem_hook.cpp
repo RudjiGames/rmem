@@ -894,7 +894,10 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 extern size_t getModuleInfo(uint8_t* _buffer, size_t _bufferSize);
 void MemoryHook::writeModuleInfo()
 {
-	uint8_t buffer[32*1024];
+	// Module-heavy processes (Qt/Chromium/games) can have hundreds of modules; a
+	// small buffer truncates the list so the tail of modules can never be resolved.
+	// Use a large static buffer (BSS, not stack/heap) - writeModuleInfo runs once at init.
+	static uint8_t buffer[1024*1024];
 	uint32_t symbolDataSize = (uint32_t)getModuleInfo(buffer, sizeof(buffer));
 
 	writeToBuffer(&symbolDataSize, sizeof(uint32_t));
