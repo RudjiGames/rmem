@@ -29,7 +29,9 @@ namespace rmem {
 		uint8_t*	m_bufferPtr;
 		uint8_t		m_bufferData[BufferSize * 3];
 #if RMEM_ENABLE_LZ4_COMPRESSION
-		uint8_t		m_bufferCompressed[BufferSize];
+		// Sized to the LZ4 worst-case compression bound (LZ4_COMPRESSBOUND) so that
+		// compressing a full, incompressible BufferSize block can never fail.
+		uint8_t		m_bufferCompressed[BufferSize + (BufferSize / 255) + 16];
 #endif // RMEM_ENABLE_LZ4_COMPRESSION
 		Mutex		m_mutexInternalBufferPtrs;
 		Mutex		m_mutexWriteToFile;
@@ -50,6 +52,8 @@ namespace rmem {
 		uint32_t	m_stackTraceHashes[MemoryHook::HashArraySize];
 
 		uintptr_t	m_stackTraces[MemoryHook::HashArraySize][RMEM_STACK_TRACE_MAX];
+
+		uint32_t	m_stackTraceNumFrames[MemoryHook::HashArraySize];
 
 	public:
 		MemoryHook(const char* _rootPathOverride);

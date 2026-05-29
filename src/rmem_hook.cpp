@@ -111,7 +111,8 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 
 	for (uint32_t i=0; i<HashArraySize; ++i)
 	{
-		m_stackTraceHashes[i] = 0;
+		m_stackTraceHashes[i]		= 0;
+		m_stackTraceNumFrames[i]	= 0;
 	}
 
 	for (uint32_t i=0; i<HashArraySize; ++i)
@@ -323,9 +324,15 @@ MemoryHook::~MemoryHook()
 /// Called on shut down to flush any queued data
 void MemoryHook::flush()
 {
+	// Snapshot and reset the shared buffer state under the same lock that
+	// writeToBuffer uses, so an in-flight hook on another thread cannot tear
+	// the read of m_bufferBytesWritten / m_bufferPtr.
+	m_mutexInternalBufferPtrs.lock();
 	memcpy(s_tempBuffer, m_bufferPtr, m_bufferBytesWritten);
 	size_t BytesToWrite = m_bufferBytesWritten;
 	m_bufferBytesWritten = 0;
+	m_mutexInternalBufferPtrs.unlock();
+
 	writeToFile(s_tempBuffer, BytesToWrite);
 	if (m_file)
 	{
@@ -709,16 +716,17 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr
 
 	if (m_stackTraceHashes[stackIndex] == _stackHash)
 	{
-		/// check for hash collision
-		uint32_t i = 0;
-		for (; i<_numFrames; ++i)
+		/// check for hash collision - frame count must match first, then every frame
+		bool identical = (m_stackTraceNumFrames[stackIndex] == _numFrames);
+		for (uint32_t i=0; identical && (i<_numFrames); ++i)
 		{
 			if (m_stackTraces[stackIndex][i] != _stackTrace[i])
-				break;
+				identical = false;
 		}
 
-		if (i != _numFrames)
+		if (!identical)
 		{
+			/// genuine collision (same hash, different stack) - emit the full stack
 			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
 			return;
 		}
@@ -732,7 +740,8 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr
 	{
 		if (m_stackTraceHashes[stackIndex] == 0)
 		{
-			m_stackTraceHashes[stackIndex] = _stackHash;
+			m_stackTraceHashes[stackIndex]		= _stackHash;
+			m_stackTraceNumFrames[stackIndex]	= _numFrames;
 			/// write stack strace
 			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
 
@@ -837,7 +846,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		if (m_excessBufferPtr)
 		{
 #if RMEM_ENABLE_LZ4_COMPRESSION
-			uint32_t compSize = LZ4_compress_default((const char*)&m_bufferData[BufferSize * 2], (char*)m_bufferCompressed, (int)m_excessBufferSize, MemoryHook::BufferSize);
+			uint32_t compSize = LZ4_compress_default((const char*)&m_bufferData[BufferSize * 2], (char*)m_bufferCompressed, (int)m_excessBufferSize, (int)sizeof(m_bufferCompressed));
 			fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 			fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 			fwrite(m_bufferCompressed, compSize, 1, m_file);
@@ -849,7 +858,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		}
 
 #if RMEM_ENABLE_LZ4_COMPRESSION
-		uint32_t compSize = LZ4_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, MemoryHook::BufferSize);
+		uint32_t compSize = LZ4_compress_default((const char*)_ptr, (char*)m_bufferCompressed, (int)_bytesToWrite, (int)sizeof(m_bufferCompressed));
 		fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 		fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 		fwrite(m_bufferCompressed, compSize, 1, m_file);
@@ -882,11 +891,11 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 //--------------------------------------------------------------------------
 /// Dump additional debug info to help resolving symbols
 //--------------------------------------------------------------------------
-extern size_t getModuleInfo(uint8_t* _buffer);
+extern size_t getModuleInfo(uint8_t* _buffer, size_t _bufferSize);
 void MemoryHook::writeModuleInfo()
-{	
+{
 	uint8_t buffer[32*1024];
-	uint32_t symbolDataSize = (uint32_t)getModuleInfo(buffer);
+	uint32_t symbolDataSize = (uint32_t)getModuleInfo(buffer, sizeof(buffer));
 
 	writeToBuffer(&symbolDataSize, sizeof(uint32_t));
 	writeToBuffer(buffer, symbolDataSize);

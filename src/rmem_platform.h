@@ -155,7 +155,7 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 
 	uint32_t num = 0;
 	void** ptr = (void**)__builtin_frame_address(0);
-	while (_skip)
+	while (_skip && ptr)
 	{
 		ptr = (void**)(*ptr);
 		--_skip;

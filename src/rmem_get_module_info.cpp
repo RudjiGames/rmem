@@ -11,9 +11,17 @@
 
 namespace rmem {
 
+	// Returns true if a module entry (length-prefixed name of _nameBytes plus two
+	// uint64_t base/size values) still fits in the destination buffer.
+	static inline bool moduleEntryFits(size_t _buffPtr, size_t _nameBytes, size_t _bufferSize)
+	{
+		const size_t needed = sizeof(uint32_t) + _nameBytes + 2 * sizeof(uint64_t);
+		return (_buffPtr + needed) <= _bufferSize;
+	}
+
 #if RMEM_PLATFORM_WINDOWS
 
-	size_t getModuleInfo(uint8_t* _buffer)
+	size_t getModuleInfo(uint8_t* _buffer, size_t _bufferSize)
 	{
 		const uint8_t charSize = 2;
 		loadModuleFuncs();
@@ -40,12 +48,16 @@ namespace rmem {
 						wchar_t szModName[MAX_PATH];
 
 						MODULEINFO mi;
-						sFn_getModuleInformation(GetCurrentProcess(), hMods[i], &mi, sizeof(mi));
+						if (!sFn_getModuleInformation(GetCurrentProcess(), hMods[i], &mi, sizeof(mi)))
+							continue;
 
 						if (sFn_getModuleFileNameExW(GetCurrentProcess(), hMods[i], szModName, sizeof(szModName) / sizeof(wchar_t)))
 						{
 							uint64_t modBase = (uint64_t)mi.lpBaseOfDll;
 							uint64_t modSize = (uint64_t)mi.SizeOfImage;
+
+							if (!moduleEntryFits(buffPtr, wcslen(szModName) * sizeof(wchar_t), _bufferSize))
+								break;
 
 							addStrToBuffer(szModName, _buffer, buffPtr, 0x23);
 							addVarToBuffer(modBase, _buffer, buffPtr);
@@ -59,6 +71,9 @@ namespace rmem {
 				{
 					uint64_t modBase = (uint64_t)me.modBaseAddr;
 					uint64_t modSize = (uint64_t)me.modBaseSize;
+
+					if (!moduleEntryFits(buffPtr, wcslen(me.szExePath) * sizeof(wchar_t), _bufferSize))
+						break;
 
 					addStrToBuffer(me.szExePath, _buffer, buffPtr, 0x23);
 					addVarToBuffer(modBase, _buffer, buffPtr);
@@ -75,7 +90,7 @@ namespace rmem {
 
 #elif RMEM_PLATFORM_XBOX360
 
-	size_t getModuleInfo(uint8_t* _buffer)
+	size_t getModuleInfo(uint8_t* _buffer, size_t _bufferSize)
 	{
 		const uint8_t charSize = 2;
 
@@ -90,6 +105,9 @@ namespace rmem {
 			// Examine the contents of modLoad.
 			uint64_t modBase = (uint64_t)(uint32_t)modLoad.BaseAddress;
 			uint64_t modSize = (uint64_t)modLoad.Size;
+
+			if (!moduleEntryFits(buffPtr, strlen(modLoad.Name) * sizeof(char), _bufferSize))
+				break;
 
 			addStrToBuffer(modLoad.Name, _buffer, buffPtr, 0x23);
 			addVarToBuffer(modBase, _buffer, buffPtr);
@@ -106,7 +124,7 @@ namespace rmem {
 
 #elif RMEM_PLATFORM_ANDROID
 
-	size_t getModuleInfo(uint8_t* _buffer)
+	size_t getModuleInfo(uint8_t* _buffer, size_t _bufferSize)
 	{
 		const uint8_t charSize = 1;
 
@@ -136,6 +154,9 @@ namespace rmem {
 				uint64_t modBase	= strtoul(buff, 0, 16);
 				uint64_t modEnd		= strtoul(buff+9, 0, 16);
 
+				if (!moduleEntryFits(buffPtr, strlen(modName) * sizeof(char), _bufferSize))
+					break;
+
 				addStrToBuffer(modName, _buffer, buffPtr, 0x23);
 				addVarToBuffer(modBase, _buffer, buffPtr);
 				addVarToBuffer(modEnd - modBase, _buffer, buffPtr);
@@ -146,11 +167,12 @@ namespace rmem {
 		return buffPtr;
 	}
 
-#else 
+#else
 
-	size_t getModuleInfo(uint8_t* _buffer)
+	size_t getModuleInfo(uint8_t* _buffer, size_t _bufferSize)
 	{
 		(void)_buffer;
+		(void)_bufferSize;
 		return 0;
 	}
 
