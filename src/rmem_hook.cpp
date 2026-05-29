@@ -111,16 +111,8 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 
 	for (uint32_t i=0; i<HashArraySize; ++i)
 	{
-		m_stackTraceHashes[i]		= 0;
-		m_stackTraceNumFrames[i]	= 0;
-	}
-
-	for (uint32_t i=0; i<HashArraySize; ++i)
-	{
-		for (uint32_t j=0; j<RMEM_STACK_TRACE_MAX; ++j)
-		{
-			m_stackTraces[i][j] = 0;
-		}
+		m_stackTraceHashes[i]	= 0;
+		m_stackTraceHash2[i]	= 0;
 	}
 
 	m_file					= nullptr;
@@ -708,25 +700,19 @@ void MemoryHook::addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uin
 //--------------------------------------------------------------------------
 /// Called on each memory operation
 //--------------------------------------------------------------------------
-void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames, uint32_t _stackHash)
+void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames, uint64_t _stackHash)
 {
 #if	RMEM_STACK_TRACE_ENABLE_HASHING
 
-	const uint32_t stackIndex = _stackHash & HashArrayMask;
+	const uint32_t stackHash32 = (uint32_t)_stackHash;					// 32-bit hash is the wire/dedup key
+	const uint32_t stackIndex  = stackHash32 & HashArrayMask;
 
-	if (m_stackTraceHashes[stackIndex] == _stackHash)
+	if (m_stackTraceHashes[stackIndex] == stackHash32)
 	{
-		/// check for hash collision - frame count must match first, then every frame
-		bool identical = (m_stackTraceNumFrames[stackIndex] == _numFrames);
-		for (uint32_t i=0; identical && (i<_numFrames); ++i)
+		/// Confirm the 32-bit slot match isn't a collision using the full 64-bit hash.
+		if (m_stackTraceHash2[stackIndex] != _stackHash)
 		{
-			if (m_stackTraces[stackIndex][i] != _stackTrace[i])
-				identical = false;
-		}
-
-		if (!identical)
-		{
-			/// genuine collision (same hash, different stack) - emit the full stack
+			/// hash collision (same 32-bit hash, different stack) - emit the full stack
 			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
 			return;
 		}
@@ -734,22 +720,16 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr
 		/// write the existing hash
 		uint8_t hashTag = (uint8_t)EntryTags::Exists;
 		addVarToBuffer(hashTag, _tmpBuffer, _tmpBuffPtr);
-		addVarToBuffer(_stackHash, _tmpBuffer, _tmpBuffPtr);
+		addVarToBuffer(stackHash32, _tmpBuffer, _tmpBuffPtr);
 	}
 	else
 	{
 		if (m_stackTraceHashes[stackIndex] == 0)
 		{
-			m_stackTraceHashes[stackIndex]		= _stackHash;
-			m_stackTraceNumFrames[stackIndex]	= _numFrames;
+			m_stackTraceHashes[stackIndex]	= stackHash32;
+			m_stackTraceHash2[stackIndex]	= _stackHash;
 			/// write stack strace
 			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
-
-			// ...and save it for comparing later
-			for (uint32_t i=0; i<_numFrames; ++i)
-			{
-				m_stackTraces[stackIndex][i] = _stackTrace[i];
-			}
 		}
 		else
 		{
@@ -768,12 +748,12 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr
 //--------------------------------------------------------------------------
 void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace, uint32_t _numFrames)
 {
-	uint32_t stackHash	= 0;
+	uint64_t stackHash	= 0;
 
 #if	RMEM_STACK_TRACE_ENABLE_HASHING
 	if (_stackTrace)
 	{
-		stackHash = (uint32_t)hashStackTrace(_stackTrace, _numFrames);
+		stackHash = (uint64_t)hashStackTrace(_stackTrace, _numFrames);	// full 64-bit; addStackTrace uses the low 32 as the wire/dedup key
 	}
 #endif // RMEM_STACK_TRACE_ENABLE_HASHING
 

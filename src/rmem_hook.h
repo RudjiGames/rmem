@@ -51,9 +51,10 @@ namespace rmem {
 		};
 		uint32_t	m_stackTraceHashes[MemoryHook::HashArraySize];
 
-		uintptr_t	m_stackTraces[MemoryHook::HashArraySize][RMEM_STACK_TRACE_MAX];
-
-		uint32_t	m_stackTraceNumFrames[MemoryHook::HashArraySize];
+		// Secondary 64-bit hash per slot, used to confirm a 32-bit slot-hash match is
+		// not a collision. Replaces a per-slot copy of all RMEM_STACK_TRACE_MAX frames
+		// (which alone made this injected DLL ~1.5 GB) - 8 bytes/slot instead of 384.
+		uint64_t	m_stackTraceHash2[MemoryHook::HashArraySize];
 
 	public:
 		MemoryHook(const char* _rootPathOverride);
@@ -112,7 +113,7 @@ namespace rmem {
 		void addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames);
 
 		/// Called on each memory operation
-		void addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numTraces, uint32_t _stackHash);
+		void addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numTraces, uint64_t _stackHash);
 
 		/// Writes data to the internal buffer
 		void writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace = 0, uint32_t _numFrames = 0);
