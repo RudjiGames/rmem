@@ -28,7 +28,9 @@
 /// may offset for performance loss caused by compression cost.
 /// One may experiment with changing the write out buffer size (in rmem_hook.h)
 /// to find the right balance between capture size and performance impact.
-#define RMEM_ENABLE_LZ4_COMPRESSION				0
+/// The compression / file write now runs on a background thread (RMEM_ENABLE_ASYNC_WRITE,
+/// see rmem_hook.h), so the CPU cost is largely overlapped with the profiled application.
+#define RMEM_ENABLE_LZ4_COMPRESSION				1
 
 /// Set to one to disable linking lz4 functions in case you're
 /// already statically linking against them

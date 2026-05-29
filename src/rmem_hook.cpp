@@ -120,6 +120,15 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 	m_excessBufferPtr		= nullptr;
 	m_excessBufferSize		= 0;
 
+#if RMEM_ENABLE_ASYNC_WRITE
+	// Initialized before the first writeToBuffer (header below); the writer thread itself is
+	// started at the end of the constructor. Until then writerPost/writerWaitIdle no-op.
+	m_writeJobPtr			= 0;
+	m_writeJobSize			= 0;
+	m_writerStop			= false;
+	m_writerStarted			= false;
+#endif
+
 #if RMEM_LITTLE_ENDIAN
 	uint8_t endianess		= 0x00;
 #else
@@ -303,6 +312,12 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 #endif
 
 	m_ignoreAllocs = false;
+
+#if RMEM_ENABLE_ASYNC_WRITE
+	// Start the background writer now that the buffers and output path are set up. Spawned via
+	// rmemInit (not DllMain), so creating/joining the thread does not run under the loader lock.
+	writerStart();
+#endif
 }
 
 //--------------------------------------------------------------------------
@@ -311,6 +326,9 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 MemoryHook::~MemoryHook()
 {
 	flush();
+#if RMEM_ENABLE_ASYNC_WRITE
+	writerStop();	// drain handled by flush() above; this joins and tears down the writer thread
+#endif
 }
 
 /// Called on shut down to flush any queued data
@@ -324,6 +342,12 @@ void MemoryHook::flush()
 	size_t BytesToWrite = m_bufferBytesWritten;
 	m_bufferBytesWritten = 0;
 	m_mutexInternalBufferPtrs.unlock();
+
+#if RMEM_ENABLE_ASYNC_WRITE
+	// Let the writer finish any posted chunk first so this trailing data is written last,
+	// preserving the on-disk order of operations.
+	writerWaitIdle();
+#endif
 
 	writeToFile(s_tempBuffer, BytesToWrite);
 	if (m_file)
@@ -440,9 +464,21 @@ bool rmemIsCaptureEnabled(bool _enable = false);
 static inline bool rmemIsCaptureEnabled(bool) { return true; }
 #endif
 
+#if RMEM_ENABLE_ASYNC_WRITE
+	// Set on the background writer thread (see writerLoop). The writer may itself allocate
+	// (e.g. fopen opening the capture file); never record its own allocations - doing so would
+	// recurse into writeToBuffer and deadlock against the producer/handoff. A thread_local bool
+	// is far cheaper on the hot path than querying the OS thread id on every operation.
+	static thread_local bool s_rmemIsWriterThread = false;
+	#define RMEM_WRITER_GUARD	if (s_rmemIsWriterThread) return;
+#else
+	#define RMEM_WRITER_GUARD
+#endif
+
 #define RMEM_DELAYED_CAPTURE					\
 	if (!rmemIsCaptureEnabled(false)) return;	\
-	if (m_ignoreAllocs) return;
+	if (m_ignoreAllocs) return;					\
+	RMEM_WRITER_GUARD
 
 //--------------------------------------------------------------------------
 /// Called for each allocation
@@ -764,7 +800,8 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 		addStackTrace((uint8_t*)_ptr, _size, _stackTrace, _numFrames, stackHash);
 	}
 
-	uint8_t* writeBuffer = 0;
+	uint8_t* writeBuffer		= 0;
+	size_t   writeBufferBytes	= 0;
 
 	if (_size + m_bufferBytesWritten <= MemoryHook::BufferSize)
 	{
@@ -772,7 +809,12 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 
 		if (_size + m_bufferBytesWritten == MemoryHook::BufferSize)
 		{
-			writeBuffer = doubleBuffer();
+#if RMEM_ENABLE_ASYNC_WRITE
+			// The other half may still be in flight on the writer - wait before reusing it.
+			writerWaitIdle();
+#endif
+			writeBuffer			= doubleBuffer();
+			writeBufferBytes	= MemoryHook::BufferSize;	// record ends exactly on the boundary - chunk stays record-aligned
 		}
 		else
 		{
@@ -781,21 +823,28 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 	}
 	else
 	{
-		// fill the rest of the buffer
-		size_t BytesToCopy = MemoryHook::BufferSize - m_bufferBytesWritten;
-		memcpy(&m_bufferPtr[m_bufferBytesWritten], _ptr, BytesToCopy);
+		// The record doesn't fit in the remaining space. Flush the current (partial) buffer
+		// as its own chunk and start this record at the beginning of a fresh buffer, so every
+		// chunk holds only whole records (lets the loader decompress/parse chunks in parallel).
+		// Records are always far smaller than BufferSize, so a fresh buffer always fits one.
+#if RMEM_ENABLE_ASYNC_WRITE
+		// The other half may still be in flight on the writer - wait before reusing/writing it.
+		writerWaitIdle();
+#endif
+		writeBufferBytes	= m_bufferBytesWritten;
+		writeBuffer			= doubleBuffer();				// returns the partial buffer, resets m_bufferBytesWritten
 
-		writeBuffer = doubleBuffer();
-
-		const uint8_t* inPtrByte = (const uint8_t*)_ptr;
-
-		memcpy(m_bufferPtr, &inPtrByte[BytesToCopy], _size - BytesToCopy);
-		m_bufferBytesWritten = (uint32_t)(_size - BytesToCopy);
+		memcpy(m_bufferPtr, _ptr, _size);
+		m_bufferBytesWritten = (uint32_t)_size;
 	}
 
 	if (writeBuffer)
 	{
-		writeToFile(writeBuffer, MemoryHook::BufferSize);
+#if RMEM_ENABLE_ASYNC_WRITE
+		writerPost(writeBuffer, writeBufferBytes);			// hand off; producer keeps filling the other half
+#else
+		writeToFile(writeBuffer, writeBufferBytes);
+#endif
 	}
 
 	m_mutexInternalBufferPtrs.unlock();
@@ -897,5 +946,174 @@ uint8_t* MemoryHook::doubleBuffer()
 
 	return ret;
 }
+
+#if RMEM_ENABLE_ASYNC_WRITE
+
+//--------------------------------------------------------------------------
+/// Background writer thread: lifecycle + producer-side handoff
+//--------------------------------------------------------------------------
+void MemoryHook::writerStart()
+{
+	m_writeJobPtr	= 0;
+	m_writeJobSize	= 0;
+	m_writerStop	= false;
+	m_writerStarted	= false;
+
+#if RMEM_PLATFORM_WINDOWS
+	InitializeCriticalSection(&m_writerLock);
+	InitializeConditionVariable(&m_writerJobCv);
+	InitializeConditionVariable(&m_writerDoneCv);
+	m_writerThread	= CreateThread(0, 0, &MemoryHook::writerThreadEntry, this, 0, 0);
+	m_writerStarted	= (m_writerThread != 0);
+#else
+	pthread_mutex_init(&m_writerLock, 0);
+	pthread_cond_init(&m_writerJobCv, 0);
+	pthread_cond_init(&m_writerDoneCv, 0);
+	m_writerStarted	= (pthread_create(&m_writerThread, 0, &MemoryHook::writerThreadEntry, this) == 0);
+#endif
+}
+
+void MemoryHook::writerStop()
+{
+#if RMEM_PLATFORM_WINDOWS
+	if (m_writerStarted)
+	{
+		EnterCriticalSection(&m_writerLock);
+		m_writerStop = true;
+		WakeConditionVariable(&m_writerJobCv);
+		LeaveCriticalSection(&m_writerLock);
+		WaitForSingleObject(m_writerThread, INFINITE);
+		CloseHandle(m_writerThread);
+		m_writerThread	= 0;
+		m_writerStarted	= false;
+	}
+	DeleteCriticalSection(&m_writerLock);
+#else
+	if (m_writerStarted)
+	{
+		pthread_mutex_lock(&m_writerLock);
+		m_writerStop = true;
+		pthread_cond_signal(&m_writerJobCv);
+		pthread_mutex_unlock(&m_writerLock);
+		pthread_join(m_writerThread, 0);
+		m_writerStarted = false;
+	}
+	pthread_cond_destroy(&m_writerJobCv);
+	pthread_cond_destroy(&m_writerDoneCv);
+	pthread_mutex_destroy(&m_writerLock);
+#endif
+}
+
+void MemoryHook::writerWaitIdle()
+{
+	if (!m_writerStarted)
+		return;
+
+#if RMEM_PLATFORM_WINDOWS
+	EnterCriticalSection(&m_writerLock);
+	while (m_writeJobPtr)
+		SleepConditionVariableCS(&m_writerDoneCv, &m_writerLock, INFINITE);
+	LeaveCriticalSection(&m_writerLock);
+#else
+	pthread_mutex_lock(&m_writerLock);
+	while (m_writeJobPtr)
+		pthread_cond_wait(&m_writerDoneCv, &m_writerLock);
+	pthread_mutex_unlock(&m_writerLock);
+#endif
+}
+
+void MemoryHook::writerPost(void* _ptr, size_t _size)
+{
+	if (!m_writerStarted)
+	{
+		writeToFile(_ptr, _size);	// no writer thread - write synchronously
+		return;
+	}
+
+	// Caller guarantees the writer is idle (writerWaitIdle precedes the buffer swap), so the
+	// job slot is free here.
+#if RMEM_PLATFORM_WINDOWS
+	EnterCriticalSection(&m_writerLock);
+	m_writeJobPtr	= _ptr;
+	m_writeJobSize	= _size;
+	WakeConditionVariable(&m_writerJobCv);
+	LeaveCriticalSection(&m_writerLock);
+#else
+	pthread_mutex_lock(&m_writerLock);
+	m_writeJobPtr	= _ptr;
+	m_writeJobSize	= _size;
+	pthread_cond_signal(&m_writerJobCv);
+	pthread_mutex_unlock(&m_writerLock);
+#endif
+}
+
+void MemoryHook::writerLoop()
+{
+	// Mark this thread before doing anything that could allocate, so RMEM_WRITER_GUARD
+	// suppresses this thread's own allocations (see the macro).
+	s_rmemIsWriterThread = true;
+
+	for (;;)
+	{
+		void*	jobPtr;
+		size_t	jobSize;
+
+#if RMEM_PLATFORM_WINDOWS
+		EnterCriticalSection(&m_writerLock);
+		while (!m_writeJobPtr && !m_writerStop)
+			SleepConditionVariableCS(&m_writerJobCv, &m_writerLock, INFINITE);
+		if (!m_writeJobPtr && m_writerStop)
+		{
+			LeaveCriticalSection(&m_writerLock);
+			break;
+		}
+		jobPtr	= m_writeJobPtr;
+		jobSize	= m_writeJobSize;
+		LeaveCriticalSection(&m_writerLock);
+#else
+		pthread_mutex_lock(&m_writerLock);
+		while (!m_writeJobPtr && !m_writerStop)
+			pthread_cond_wait(&m_writerJobCv, &m_writerLock);
+		if (!m_writeJobPtr && m_writerStop)
+		{
+			pthread_mutex_unlock(&m_writerLock);
+			break;
+		}
+		jobPtr	= m_writeJobPtr;
+		jobSize	= m_writeJobSize;
+		pthread_mutex_unlock(&m_writerLock);
+#endif
+
+		writeToFile(jobPtr, jobSize);
+
+#if RMEM_PLATFORM_WINDOWS
+		EnterCriticalSection(&m_writerLock);
+		m_writeJobPtr = 0;
+		WakeConditionVariable(&m_writerDoneCv);
+		LeaveCriticalSection(&m_writerLock);
+#else
+		pthread_mutex_lock(&m_writerLock);
+		m_writeJobPtr = 0;
+		pthread_cond_signal(&m_writerDoneCv);
+		pthread_mutex_unlock(&m_writerLock);
+#endif
+	}
+}
+
+#if RMEM_PLATFORM_WINDOWS
+DWORD WINAPI MemoryHook::writerThreadEntry(LPVOID _arg)
+{
+	((MemoryHook*)_arg)->writerLoop();
+	return 0;
+}
+#else
+void* MemoryHook::writerThreadEntry(void* _arg)
+{
+	((MemoryHook*)_arg)->writerLoop();
+	return 0;
+}
+#endif
+
+#endif // RMEM_ENABLE_ASYNC_WRITE
 
 } // namespace rmem

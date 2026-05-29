@@ -125,6 +125,36 @@ static _Unwind_Reason_Code unwindTraceFunc(struct _Unwind_Context* _context, voi
 		return _URC_END_OF_STACK;
 	}
 }
+
+#if defined(__aarch64__)
+#include <pthread.h>
+// Returns the calling thread's stack bounds [lo, hi), cached per-thread. Used to validate
+// frame pointers during fast FP unwinding so a corrupt/leaf frame can't fault the target.
+static inline bool rmemGetThreadStackBounds(uintptr_t& _lo, uintptr_t& _hi)
+{
+	static thread_local uintptr_t s_lo = 0;
+	static thread_local uintptr_t s_hi = 0;
+	if (s_hi == 0)
+	{
+		pthread_attr_t attr;
+		if (pthread_getattr_np(pthread_self(), &attr) == 0)
+		{
+			void*	base = 0;
+			size_t	size = 0;
+			if (pthread_attr_getstack(&attr, &base, &size) == 0)
+			{
+				s_lo = (uintptr_t)base;
+				s_hi = (uintptr_t)base + size;
+			}
+			pthread_attr_destroy(&attr);
+		}
+	}
+	_lo = s_lo;
+	_hi = s_hi;
+	return s_hi != 0;
+}
+#endif // __aarch64__
+
 #endif // RMEM_PLATFORM_ANDROID
 
 static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, uint32_t _skip)
@@ -168,7 +198,45 @@ static inline uint32_t getStackTrace(uintptr_t _traces[], uint32_t _numFrames, u
 	return num;
 
 #elif RMEM_PLATFORM_ANDROID
-	
+
+	#if defined(__aarch64__)
+	// Fast frame-pointer unwinding. Requires the target built with -fno-omit-frame-pointer.
+	// Each AArch64 frame record is { saved FP, saved LR } located at [x29]. Every FP is
+	// validated against the thread's stack bounds (and required to increase monotonically)
+	// so a leaf/corrupt frame can't fault the profiled process; falls back to the libc
+	// unwinder when stack bounds are unavailable.
+	uintptr_t stackLo, stackHi;
+	if (rmemGetThreadStackBounds(stackLo, stackHi))
+	{
+		const uintptr_t frameRecordSize = 2 * sizeof(uintptr_t);
+		uintptr_t fp = (uintptr_t)__builtin_frame_address(0);
+		uint32_t num = 0;
+
+		#define RMEM_FP_VALID(_fp) (((_fp) >= stackLo) && (((_fp) + frameRecordSize) <= stackHi) && (((_fp) & (sizeof(uintptr_t) - 1)) == 0))
+
+		while (_skip && RMEM_FP_VALID(fp))
+		{
+			fp = ((uintptr_t*)fp)[0];
+			--_skip;
+		}
+
+		while ((num < _numFrames) && RMEM_FP_VALID(fp))
+		{
+			const uintptr_t nextFp	= ((uintptr_t*)fp)[0];
+			const uintptr_t lr		= ((uintptr_t*)fp)[1];
+			if (lr == 0)
+				break;
+			_traces[num++] = lr;
+			if (nextFp <= fp)		// frame pointers must increase walking up the stack
+				break;
+			fp = nextFp;
+		}
+
+		#undef RMEM_FP_VALID
+		return num;
+	}
+	#endif // __aarch64__
+
 	unwindArg arg;
 	arg.m_tracesToSkip	= _skip;
 	arg.m_numTraces		= 0;

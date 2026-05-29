@@ -13,6 +13,19 @@
 
 #include <stdio.h>	//< file ops
 
+// File writes (and LZ4 compression, when enabled) can stall the profiled application. When
+// enabled, they are performed on a dedicated background thread using the second half of the
+// double buffer, so recording keeps going while the previous half is written. Platforms
+// without a supported thread / condition-variable implementation fall back to synchronous
+// writes (and can be forced off by defining RMEM_ENABLE_ASYNC_WRITE=0 in the build).
+#ifndef RMEM_ENABLE_ASYNC_WRITE
+	#if RMEM_PLATFORM_WINDOWS || RMEM_PLATFORM_LINUX || RMEM_PLATFORM_OSX || RMEM_PLATFORM_ANDROID
+		#define RMEM_ENABLE_ASYNC_WRITE				1
+	#else
+		#define RMEM_ENABLE_ASYNC_WRITE				0
+	#endif
+#endif
+
 namespace rmem {
 
 	/// Memory hook interface
@@ -55,6 +68,28 @@ namespace rmem {
 		// not a collision. Replaces a per-slot copy of all RMEM_STACK_TRACE_MAX frames
 		// (which alone made this injected DLL ~1.5 GB) - 8 bytes/slot instead of 384.
 		uint64_t	m_stackTraceHash2[MemoryHook::HashArraySize];
+
+#if RMEM_ENABLE_ASYNC_WRITE
+		// Background writer: the producer posts a filled buffer half and keeps recording into
+		// the other half while this thread compresses/writes the posted one. Only one write is
+		// outstanding at a time (there are two halves), so the producer blocks here only when
+		// I/O falls behind. See writerPost / writerWaitIdle / writerLoop.
+		void*		m_writeJobPtr;		// buffer half pending write (null = writer idle)
+		size_t		m_writeJobSize;
+		bool		m_writerStop;
+		bool		m_writerStarted;
+	#if RMEM_PLATFORM_WINDOWS
+		CRITICAL_SECTION	m_writerLock;
+		CONDITION_VARIABLE	m_writerJobCv;
+		CONDITION_VARIABLE	m_writerDoneCv;
+		HANDLE				m_writerThread;
+	#else
+		pthread_mutex_t		m_writerLock;
+		pthread_cond_t		m_writerJobCv;
+		pthread_cond_t		m_writerDoneCv;
+		pthread_t			m_writerThread;
+	#endif
+#endif // RMEM_ENABLE_ASYNC_WRITE
 
 	public:
 		MemoryHook(const char* _rootPathOverride);
@@ -126,6 +161,20 @@ namespace rmem {
 
 		/// swap buffers
 		uint8_t* doubleBuffer();
+
+#if RMEM_ENABLE_ASYNC_WRITE
+		/// background writer thread: lifecycle and producer-side handoff
+		void writerStart();
+		void writerStop();
+		void writerPost(void* _ptr, size_t _size);	// hand a filled buffer half to the writer
+		void writerWaitIdle();						// block until no write is outstanding
+		void writerLoop();							// writer thread body
+	#if RMEM_PLATFORM_WINDOWS
+		static DWORD WINAPI writerThreadEntry(LPVOID _arg);
+	#else
+		static void* writerThreadEntry(void* _arg);
+	#endif
+#endif // RMEM_ENABLE_ASYNC_WRITE
 	};
 
 } // namespace rmem
