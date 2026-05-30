@@ -145,8 +145,8 @@ namespace rmem {
 		void unregisterModule(const wchar_t* _name, uint64_t _base, uint32_t _size);
 
 	private:
-		/// Writes out a full stack trace
-		void addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames);
+		/// Writes out a full stack trace (carrying its 32-bit hash, v1.4 format)
+		void addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames, uint32_t _stackHash32);
 
 		/// Called on each memory operation
 		void addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numTraces, uint64_t _stackHash);

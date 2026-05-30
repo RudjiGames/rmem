@@ -181,7 +181,7 @@
  * Log version macros
  *------------------------------------------------------------------------*/
 #define RMEM_VER_HIGH				1
-#define RMEM_VER_LOW				2
+#define RMEM_VER_LOW				4		// v1.4: 'Add' stack-trace records carry their 32-bit (wyhash) hash; record-aligned compressed chunks
 
 /*--------------------------------------------------------------------------
  * Memory marker is used to specify time points that are significant in

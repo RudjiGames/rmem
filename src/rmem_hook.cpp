@@ -735,10 +735,11 @@ void MemoryHook::unregisterModule(const wchar_t* _name, uint64_t _base, uint32_t
 //--------------------------------------------------------------------------
 /// Writes out a full stack trace
 //--------------------------------------------------------------------------
-void MemoryHook::addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames)
+void MemoryHook::addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames, uint32_t _stackHash32)
 {
 	uint8_t hashTag = (uint8_t)EntryTags::Add;
 	addVarToBuffer(hashTag, _tmpBuffer, _tmpBuffPtr);
+	addVarToBuffer(_stackHash32, _tmpBuffer, _tmpBuffPtr);	// v1.4: Add records carry the 32-bit hash so the loader need not recompute it
 	uint16_t numTraces = (uint16_t)_numFrames;
 	addVarToBuffer(numTraces, _tmpBuffer, _tmpBuffPtr);
 	addPtrToBuffer(_stackTrace, sizeof(uintptr_t)*_numFrames, _tmpBuffer, _tmpBuffPtr);
@@ -749,9 +750,10 @@ void MemoryHook::addStackTrace_new(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uin
 //--------------------------------------------------------------------------
 void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr_t* _stackTrace, uint32_t _numFrames, uint64_t _stackHash)
 {
+	const uint32_t stackHash32 = (uint32_t)_stackHash;					// 32-bit hash is the wire/dedup key, also carried in each Add record
+
 #if	RMEM_STACK_TRACE_ENABLE_HASHING
 
-	const uint32_t stackHash32 = (uint32_t)_stackHash;					// 32-bit hash is the wire/dedup key
 	const uint32_t stackIndex  = stackHash32 & HashArrayMask;
 
 	if (m_stackTraceHashes[stackIndex] == stackHash32)
@@ -760,7 +762,7 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr
 		if (m_stackTraceHash2[stackIndex] != _stackHash)
 		{
 			/// hash collision (same 32-bit hash, different stack) - emit the full stack
-			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames, stackHash32);
 			return;
 		}
 
@@ -776,17 +778,17 @@ void MemoryHook::addStackTrace(uint8_t* _tmpBuffer, size_t& _tmpBuffPtr, uintptr
 			m_stackTraceHashes[stackIndex]	= stackHash32;
 			m_stackTraceHash2[stackIndex]	= _stackHash;
 			/// write stack strace
-			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames, stackHash32);
 		}
 		else
 		{
 			/// different hash - write full stack
-			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
+			addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames, stackHash32);
 		}
 	}
 
 #else //RMEM_STACK_TRACE_ENABLE_HASHING
-	addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames);
+	addStackTrace_new(_tmpBuffer, _tmpBuffPtr, _stackTrace, _numFrames, stackHash32);
 #endif // RMEM_STACK_TRACE_ENABLE_HASHING
 }
 
@@ -797,12 +799,12 @@ void MemoryHook::writeToBuffer(void* _ptr, size_t _size, uintptr_t* _stackTrace,
 {
 	uint64_t stackHash	= 0;
 
-#if	RMEM_STACK_TRACE_ENABLE_HASHING
 	if (_stackTrace)
 	{
-		stackHash = (uint64_t)hashStackTrace(_stackTrace, _numFrames);	// full 64-bit; addStackTrace uses the low 32 as the wire/dedup key
-	}
-#endif // RMEM_STACK_TRACE_ENABLE_HASHING
+		// Always computed (even with dedup disabled): the low 32 bits are the dedup key AND are
+		// carried in every Add record so the loader does not recompute the hash.
+		stackHash = hashStackTrace(_stackTrace, _numFrames);
+	} // RMEM_STACK_TRACE_ENABLE_HASHING
 
 	m_mutexInternalBufferPtrs.lock();
 
