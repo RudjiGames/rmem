@@ -36,7 +36,11 @@ namespace rmem {
 		enum { BufferSize = RMEM_BUFFER_SIZE };
 
 	private:
-		bool		m_ignoreAllocs;
+		// Set true only during construction (after the header write, around the module-info
+		// gathering that itself allocates), then cleared - never written once hooks are live.
+		// volatile keeps the hot-path read from being hoisted across the re-entrant
+		// writeModuleInfo() call on the same thread.
+		volatile bool	m_ignoreAllocs;
 		uint8_t*	m_excessBufferPtr;
 		size_t		m_bufferBytesWritten;
 		uint8_t*	m_bufferPtr;
@@ -76,7 +80,7 @@ namespace rmem {
 		// I/O falls behind. See writerPost / writerWaitIdle / writerLoop.
 		void*		m_writeJobPtr;		// buffer half pending write (null = writer idle)
 		size_t		m_writeJobSize;
-		uint64_t	m_writerThreadId;	// writer's OS thread id (Windows guard; 0 until started)
+		volatile uint64_t m_writerThreadId;	// writer's OS thread id (Windows guard; published by writerStart before the thread runs, 0 until then)
 		bool		m_writerStop;
 		bool		m_writerStarted;
 	#if RMEM_PLATFORM_WINDOWS

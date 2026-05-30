@@ -100,6 +100,17 @@ namespace rmem {
 /// (dispatcher).
 static uint8_t s_tempBuffer[MemoryHook::BufferSize];
 
+// Each operation is composed in a stack buffer of OpBufferSize bytes: the operation record itself
+// plus a stack-trace record appended in-place by addStackTrace(). The worst case is the largest
+// operation header (reallocAligned) followed by a full new stack-trace record. Guard the bound at
+// compile time so adding fields to a record (e.g. the v1.4 32-bit hash) can never silently overflow.
+static_assert((size_t)MemoryHook::OpBufferSize >=
+	/* reallocAligned header: marker(1)+handle(8)+threadId(8)+ptr+prevPtr+clock(8)+alignBit(1)+size(4)+overhead(4) */
+	(size_t)(1 + 8 + 8 + 2 * sizeof(uintptr_t) + 8 + 1 + 4 + 4) +
+	/* stack-trace record: tag(1)+hash32(4)+numFrames(2)+RMEM_STACK_TRACE_MAX frames */
+	(size_t)(1 + 4 + 2 + RMEM_STACK_TRACE_MAX * sizeof(uintptr_t)),
+	"OpBufferSize too small for worst-case operation + stack-trace record");
+
 //--------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------
@@ -326,10 +337,13 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 //--------------------------------------------------------------------------
 MemoryHook::~MemoryHook()
 {
-	flush();
 #if RMEM_ENABLE_ASYNC_WRITE
-	writerStop();	// drain handled by flush() above; this joins and tears down the writer thread
+	// Stop (drain any posted job + join) the writer FIRST, so it cannot pick up a late post and
+	// reopen/write the file after flush() has closed it. flush() then writes the trailing partial
+	// buffer synchronously (the writer is gone, so writeToFile runs inline) and closes the file.
+	writerStop();
 #endif
+	flush();
 }
 
 /// Called on shut down to flush any queued data
@@ -888,7 +902,7 @@ void MemoryHook::writeToFile(void* _ptr, size_t _bytesToWrite)
 		if (m_excessBufferPtr)
 		{
 #if RMEM_ENABLE_LZ4_COMPRESSION
-			uint32_t compSize = LZ4_compress_default((const char*)&m_bufferData[BufferSize * 2], (char*)m_bufferCompressed, (int)m_excessBufferSize, (int)sizeof(m_bufferCompressed));
+			uint32_t compSize = LZ4_compress_default((const char*)m_excessBufferPtr, (char*)m_bufferCompressed, (int)m_excessBufferSize, (int)sizeof(m_bufferCompressed));
 			fwrite(&compressedSig, sizeof(uint32_t), 1, m_file);
 			fwrite(&compSize, sizeof(uint32_t), 1, m_file);
 			fwrite(m_bufferCompressed, compSize, 1, m_file);
@@ -976,7 +990,18 @@ void MemoryHook::writerStart()
 	InitializeCriticalSection(&m_writerLock);
 	InitializeConditionVariable(&m_writerJobCv);
 	InitializeConditionVariable(&m_writerDoneCv);
-	m_writerThread	= CreateThread(0, 0, &MemoryHook::writerThreadEntry, this, 0, 0);
+	// Create the writer suspended so we can publish its thread id BEFORE it executes anything.
+	// RMEM_WRITER_GUARD must already recognise this thread when it makes its first allocation -
+	// CRT per-thread startup can allocate before writerLoop's body runs - or that allocation would
+	// be recorded and recurse back into the hook. ResumeThread is a full barrier, so the id write
+	// is visible to the thread once it starts.
+	DWORD writerTid	= 0;
+	m_writerThread	= CreateThread(0, 0, &MemoryHook::writerThreadEntry, this, CREATE_SUSPENDED, &writerTid);
+	if (m_writerThread)
+	{
+		m_writerThreadId = (uint64_t)writerTid;
+		ResumeThread(m_writerThread);
+	}
 	m_writerStarted	= (m_writerThread != 0);
 #else
 	pthread_mutex_init(&m_writerLock, 0);
@@ -1065,7 +1090,8 @@ void MemoryHook::writerLoop()
 	// Mark this thread before doing anything that could allocate, so RMEM_WRITER_GUARD
 	// suppresses this thread's own allocations (see the macro).
 #if RMEM_PLATFORM_WINDOWS
-	m_writerThreadId = getThreadID();
+	// m_writerThreadId was already published by writerStart() before this (suspended-created)
+	// thread was resumed, so the guard is live even for CRT thread-startup allocations.
 #else
 	s_rmemIsWriterThread = true;
 #endif

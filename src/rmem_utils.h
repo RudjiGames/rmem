@@ -104,16 +104,20 @@ namespace rmem {
 
 	static inline uint32_t hashStr(const char* _string)
 	{
-		int hash = 0;
+		// Computed in unsigned arithmetic to avoid signed-overflow / signed-shift UB. The masked
+		// low-16-bit result is bit-identical to the previous signed version (the shifts that differ
+		// only affect bits >= 16, which are discarded by the & 0xffff), so capture compatibility is
+		// preserved.
+		uint32_t hash = 0;
 		uint8_t* p = (uint8_t*)_string;
 
 		while (*p != '\0')
 		{
-			hash = hash + ((hash) << 5) + *(p) + ((*(p)) << 7);
+			hash = hash + (hash << 5) + (uint32_t)(*p) + ((uint32_t)(*p) << 7);
 			p++;
 		}
 		return ((hash) ^ (hash >> 16)) & 0xffff;
-	} 
+	}
 
 	static inline uint64_t hashStackTrace(uintptr_t* _backTrace, uint32_t _numEntries)
 	{
