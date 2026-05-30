@@ -41,7 +41,7 @@
 /// written, avoiding stalls in the profiled application. Disabled by default; when off,
 /// writes are performed synchronously. Platforms without a supported thread / condition-
 /// variable implementation always fall back to synchronous writes (see rmem_hook.h).
-#define RMEM_ENABLE_ASYNC_WRITE					0
+#define RMEM_ENABLE_ASYNC_WRITE					1
 
 /// If enabled, no allocation tracking is done until rmemStartCapture() is called
 #define RMEM_ENABLE_DELAYED_CAPTURE				0
