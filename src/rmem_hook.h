@@ -76,6 +76,7 @@ namespace rmem {
 		// I/O falls behind. See writerPost / writerWaitIdle / writerLoop.
 		void*		m_writeJobPtr;		// buffer half pending write (null = writer idle)
 		size_t		m_writeJobSize;
+		uint64_t	m_writerThreadId;	// writer's OS thread id (Windows guard; 0 until started)
 		bool		m_writerStop;
 		bool		m_writerStarted;
 	#if RMEM_PLATFORM_WINDOWS

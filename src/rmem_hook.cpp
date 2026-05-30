@@ -125,6 +125,7 @@ MemoryHook::MemoryHook(const char* _rootPathOverride)
 	// started at the end of the constructor. Until then writerPost/writerWaitIdle no-op.
 	m_writeJobPtr			= 0;
 	m_writeJobSize			= 0;
+	m_writerThreadId		= 0;
 	m_writerStop			= false;
 	m_writerStarted			= false;
 #endif
@@ -464,13 +465,23 @@ bool rmemIsCaptureEnabled(bool _enable = false);
 static inline bool rmemIsCaptureEnabled(bool) { return true; }
 #endif
 
+// The background writer thread may itself allocate (e.g. fopen opening the capture file); its
+// own allocations must never be recorded or they recurse into writeToBuffer and deadlock against
+// the producer/handoff. We identify the writer thread to suppress them.
+//
+// On Windows rmem is injected into an already-running process, so we must NOT use thread_local
+// here: this guard runs on every hooked RtlAllocateHeap/RtlFreeHeap from threads that predate
+// the DLL (and even during loader/TLS init), and accessing a freshly-loaded DLL's thread_local
+// from such a thread crashes. GetCurrentThreadId() (via getThreadID) reads the TEB and is always
+// safe and cheap. On preloaded platforms a thread_local bool is safe and avoids a per-allocation
+// gettid syscall on the hot path.
 #if RMEM_ENABLE_ASYNC_WRITE
-	// Set on the background writer thread (see writerLoop). The writer may itself allocate
-	// (e.g. fopen opening the capture file); never record its own allocations - doing so would
-	// recurse into writeToBuffer and deadlock against the producer/handoff. A thread_local bool
-	// is far cheaper on the hot path than querying the OS thread id on every operation.
-	static thread_local bool s_rmemIsWriterThread = false;
-	#define RMEM_WRITER_GUARD	if (s_rmemIsWriterThread) return;
+	#if RMEM_PLATFORM_WINDOWS
+		#define RMEM_WRITER_GUARD	if (m_writerThreadId && (getThreadID() == m_writerThreadId)) return;
+	#else
+		static thread_local bool s_rmemIsWriterThread = false;
+		#define RMEM_WRITER_GUARD	if (s_rmemIsWriterThread) return;
+	#endif
 #else
 	#define RMEM_WRITER_GUARD
 #endif
@@ -1051,7 +1062,11 @@ void MemoryHook::writerLoop()
 {
 	// Mark this thread before doing anything that could allocate, so RMEM_WRITER_GUARD
 	// suppresses this thread's own allocations (see the macro).
+#if RMEM_PLATFORM_WINDOWS
+	m_writerThreadId = getThreadID();
+#else
 	s_rmemIsWriterThread = true;
+#endif
 
 	for (;;)
 	{

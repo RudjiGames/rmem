@@ -3,16 +3,16 @@
 -- License: http://www.opensource.org/licenses/BSD-2-Clause
 --
 
-function projectExtraConfigExecutable_linker()
+function projectExtraConfigExecutable_rmem_linker()
 	configuration { "gmake" }
 		if getTargetCompiler() == "mingw-gcc"	or	-- on windows, we patch heap functions, no need to wrap malloc family of funcs
 		   getTargetCompiler() == "mingw-clang"	then
-			linkoptions { "-Wl,--wrap=_malloc_init--export-all-symbols" }
+			linkoptions { "-Wl,--wrap=_malloc_init,--export-all-symbols" }
 			links { "psapi" }
 		else 
 			local wrap = "-Wl,--wrap=malloc,--wrap=realloc,--wrap=calloc,--wrap=free,--wrap=memalign,--wrap=reallocalign"
 			if getTargetOS() ~= "linux" and getTargetOS() ~= "orbis" then
-				wrap = wrap .. "--export-all-symbols,--wrap=_expand"
+				wrap = wrap .. ",--export-all-symbols,--wrap=_expand"
 			end
 			if getTargetOS() ~= "osx" then
 				linkoptions { wrap }
@@ -28,7 +28,7 @@ function projectExtraConfigExecutable_linker()
 	configuration {}
 end
 
-function projectExtraConfigExecutable_manual()
+function projectExtraConfigExecutable_rmem_manual()
 	configuration { "windows", "gmake" }
 		if getTargetOS() ~= "orbis" and getTargetOS() ~= "android" then
 			linkoptions { "-Wl,--export-all-symbols" }
