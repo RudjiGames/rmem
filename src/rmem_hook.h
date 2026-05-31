@@ -121,6 +121,9 @@ namespace rmem {
 		/// Called for each heap registration
 		void registerAllocator(const char* _name, uint64_t _handle);
 
+		/// Associates a name with a thread ID (written as a ThreadName record)
+		void registerThreadName(uint64_t _threadId, const char* _name);
+
 		/// Called for each allocation
 		void alloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t _overhead);
 

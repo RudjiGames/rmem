@@ -5,6 +5,7 @@
 
 #include "../inc/rmem.h"
 #include "rmem_hook.h"
+#include "rmem_platform.h"	// getThreadID()
 
 rmem::MemoryHook*& getMemoryHookPtr()
 {
@@ -122,6 +123,22 @@ extern "C" {
 		rmem::MemoryHook*& hook = getMemoryHookPtr();
 		if (hook)
 			hook->registerAllocator(_name, _handle);
+	}
+
+	void rmemSetThreadName(const char* _name)
+	{
+		rmem::MemoryHook*& hook = getMemoryHookPtr();
+		if (hook)
+			hook->registerThreadName(getThreadID(), _name);
+	}
+
+	// Names an arbitrary thread by ID. Not published in rmem.h - used by the Windows
+	// SetThreadDescription detour (which knows the target thread's handle/ID, not "current").
+	void rmemSetThreadNameId(uint64_t _threadID, const char* _name)
+	{
+		rmem::MemoryHook*& hook = getMemoryHookPtr();
+		if (hook)
+			hook->registerThreadName(_threadID, _name);
 	}
 
 	void rmemAlloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t _overhead)

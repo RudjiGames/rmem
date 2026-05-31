@@ -34,6 +34,9 @@ typedef HRESULT (WINAPI *fnSHGetFolderPathA)(HWND hwnd, int csidl, HANDLE hToken
 
 void rmemAddModuleC(const char* _name, uint64_t _base, uint32_t _size);
 void rmemAddModuleW(const wchar_t* _name, uint64_t _base, uint32_t _size);
+// extern "C": rmemSetThreadNameId is defined with C linkage in rmem_lib.cpp and (unlike
+// rmemAddModuleC/W) is not declared in rmem.h, so the linkage must be stated here too.
+extern "C" void rmemSetThreadNameId(uint64_t _threadID, const char* _name);
 
 typedef PVOID	(WINAPI *fn_RtlAllocateHeap)(PVOID hHeap, ULONG dwFlags, SIZE_T dwBytes);
 typedef LPVOID	(WINAPI *fn_RtlReAllocateHeap)(HANDLE hHeap, DWORD dwFlags, LPVOID lpMem, SIZE_T dwBytes);
@@ -46,6 +49,9 @@ typedef HMODULE	(WINAPI *fn_LoadLibraryExW)(LPCWSTR _fileName, HANDLE _file, DWO
 typedef BOOL	(WINAPI *fn_FreeLibrary)(HMODULE _hLibModule);
 typedef void	(WINAPI *fn_FreeLibraryAndExitThread)(HMODULE _hLibModule, DWORD _dwExitCode);
 typedef void	(WINAPI *fn_exit)(int _code);
+// Declared by hand: the prototype only exists when _WIN32_WINNT >= 0x0A00, but rmem targets 0x601.
+// Resolved at runtime via GetProcAddress, so the hook is a no-op on pre-Windows-10 hosts.
+typedef HRESULT	(WINAPI *fn_SetThreadDescription)(HANDLE _thread, PCWSTR _description);
 
 #define FN_ORIGINAL(name)			\
 	fn_##name fn_##name##_t;
@@ -73,6 +79,7 @@ FN_ORIGINAL(LoadLibraryExW)
 FN_ORIGINAL(FreeLibrary)
 FN_ORIGINAL(FreeLibraryAndExitThread)
 FN_ORIGINAL(exit)
+FN_ORIGINAL(SetThreadDescription)
 
 struct ThreadInitializer
 {
@@ -261,6 +268,28 @@ void WINAPI detour_FreeLibraryAndExitThread(HMODULE _hLibModule, DWORD _dwExitCo
 	(CALL_ORIGINAL(FreeLibraryAndExitThread)(_hLibModule, _dwExitCode));
 }
 
+// Auto-capture thread names: when the app names a thread via SetThreadDescription (the modern
+// Win10+ API used by std::thread debuggers, UE's FRunnableThread, etc.), record it. This runs
+// only when a thread is (re)named - never on the allocation hot path - so it adds zero per-op cost.
+HRESULT WINAPI detour_SetThreadDescription(HANDLE _thread, PCWSTR _description)
+{
+	HRESULT ret = (CALL_ORIGINAL(SetThreadDescription)(_thread, _description));
+
+	if (g_shouldProfile && _description && _description[0])
+	{
+		DWORD tid = GetThreadId(_thread);	// resolves the pseudo-handle for the current thread too
+		if (tid != 0)
+		{
+			char nameUtf8[256];
+			int n = WideCharToMultiByte(CP_UTF8, 0, _description, -1, nameUtf8, sizeof(nameUtf8), nullptr, nullptr);
+			if (n > 0)
+				rmemSetThreadNameId((uint64_t)tid, nameUtf8);
+		}
+	}
+
+	return ret;
+}
+
 bool g_linkerBased;
 
 
@@ -322,6 +351,10 @@ extern "C"
 		CREATE_HOOK(kerneldll32, FreeLibrary);
 		CREATE_HOOK(kerneldll32, FreeLibraryAndExitThread);
 
+		// SetThreadDescription is Windows 10 1607+ only - hook it only when present.
+		if (GET_PROC_ADDRESS(kerneldll32, SetThreadDescription))
+			CREATE_HOOK(kerneldll32, SetThreadDescription);
+
 		if (_isLinkerBased)
 		{
 			MH_CreateHook((void*)&exit, (void*)&detour_exit, (void **)&(CALL_ORIGINAL(exit)));
@@ -357,6 +390,9 @@ extern "C"
 		REMOVE_HOOK(kerneldll32, LoadLibraryExW);
 		REMOVE_HOOK(kerneldll32, FreeLibrary);
 		REMOVE_HOOK(kerneldll32, FreeLibraryAndExitThread);
+
+		if (GET_PROC_ADDRESS(kerneldll32, SetThreadDescription))
+			REMOVE_HOOK(kerneldll32, SetThreadDescription);
 
 		if (!g_linkerBased)
 			MH_Uninitialize();

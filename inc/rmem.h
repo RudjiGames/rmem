@@ -181,7 +181,7 @@
  * Log version macros
  *------------------------------------------------------------------------*/
 #define RMEM_VER_HIGH				1
-#define RMEM_VER_LOW				4		// v1.4: 'Add' stack-trace records carry their 32-bit (wyhash) hash; record-aligned compressed chunks
+#define RMEM_VER_LOW				5		// v1.5: optional ThreadName records (thread ID -> name). v1.4: 'Add' stack-trace records carry their 32-bit (wyhash) hash; record-aligned compressed chunks
 
 /*--------------------------------------------------------------------------
  * Memory marker is used to specify time points that are significant in
@@ -253,6 +253,11 @@ extern "C" {
 
 	/* Registers an allocator/heap handle with name */
 	void rmemRegisterAllocator(const char* _name, uint64_t _handle);
+
+	/* Associates a human-readable name with the calling thread. The name is saved to the */
+	/* capture and shown in MTuner's Threads view/filter. Call once per thread (e.g. at entry). */
+	/* On Windows, threads named via SetThreadDescription are also captured automatically. */
+	void rmemSetThreadName(const char* _name);
 
 	/* Called for each alloc operation */
 	void rmemAlloc(uint64_t _handle, void* _ptr, uint32_t _size, uint32_t _overhead);

@@ -43,7 +43,8 @@ struct LogMarkers
 		Marker,
 		Module,
 		ModuleUnload,
-		Allocator
+		Allocator,
+		ThreadName		// v1.5: associates a human-readable name with a thread ID
 	};
 };
 

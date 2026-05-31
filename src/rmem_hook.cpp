@@ -471,6 +471,26 @@ void MemoryHook::registerAllocator(const char* _name, uint64_t _handle)
 	writeToBuffer(tmpBuffer, tmpBufferPtr);
 }
 
+//--------------------------------------------------------------------------
+/// Associates a human-readable name with a thread ID
+//--------------------------------------------------------------------------
+void MemoryHook::registerThreadName(uint64_t _threadId, const char* _name)
+{
+	uint8_t		tmpBuffer[512];
+	size_t		tmpBufferPtr = 0;
+
+	// Skip a pathologically long name rather than overflow tmpBuffer (addStrToBuffer is
+	// unbounded). rmemSetThreadName takes a user-supplied string, so this is reachable.
+	if (_name && (strlen(_name) + 64 > sizeof(tmpBuffer)))
+		return;
+
+	uint8_t Marker = LogMarkers::ThreadName;
+	addVarToBuffer(Marker, tmpBuffer, tmpBufferPtr);
+	addVarToBuffer(_threadId, tmpBuffer, tmpBufferPtr);
+	addStrToBuffer(_name, tmpBuffer, tmpBufferPtr);
+	writeToBuffer(tmpBuffer, tmpBufferPtr);
+}
+
 #if RMEM_ENABLE_DELAYED_CAPTURE
 extern "C" {
 bool rmemIsCaptureEnabled(bool _enable = false);
